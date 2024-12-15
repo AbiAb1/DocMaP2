@@ -506,17 +506,17 @@ $conn->close();
         }
 
         .info-message {
-    display: flex;
-    align-items: center;
-    margin-top: 5px; /* Space between title and message */
-    
-}
-
-.info-message p {
-    font-size: 16px; /* Font size for the message */
-    color: #555; /* Color for the message text */
-    margin: 0; /* Remove default margin */
-}
+            display: flex;
+            align-items: center;
+            margin-top: 5px; /* Space between title and message */
+            
+        }
+        
+        .info-message p {
+            font-size: 16px; /* Font size for the message */
+            color: #555; /* Color for the message text */
+            margin: 0; /* Remove default margin */
+        }
 
 
     </style>
@@ -850,97 +850,97 @@ $conn->close();
 
             // Function to load faculty members and update the table
             function loadFacultyMembers(page = 1) {
-    fetch(`fetch_users.php?page=${page}`)
-        .then(response => response.json())
-        .then(data => {
-            const { users, total_pages, current_page } = data;
+                fetch(`fetch_users.php?page=${page}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        const { users, total_pages, current_page } = data;
+            
+                        // Update the table with the fetched users
+                        const tableBody = document.querySelector('.faculty-table tbody');
+                        tableBody.innerHTML = '';
+            
+                        users.forEach(user => {
+                            const row = document.createElement('tr');
+                            row.innerHTML = `
+                                <td><input type="checkbox" class="select-user" 
+                                        data-fullname="${user.fullname}" 
+                                        data-rank="${user.Rank}" 
+                                        data-address="${user.address}" 
+                                        data-mobile="${user.mobile}" 
+                                        data-email="${user.email}" 
+                                        value="${user.UserID}"></td>
+                                <td>${user.fullname}</td>
+                                <td>${user.Rank}</td>
+                                <td>${user.address}</td>
+                                <td>${user.mobile}</td>
+                                <td>${user.email}</td>
+                            `;
+                            tableBody.appendChild(row);
+                        });
+            
+                        // Update pagination controls
+                        updatePagination(total_pages, current_page);
+                    })
+                    .catch(error => console.error('Error loading faculty members:', error));
+            }
 
-            // Update the table with the fetched users
-            const tableBody = document.querySelector('.faculty-table tbody');
-            tableBody.innerHTML = '';
+            // Function to update pagination controls
+            function updatePagination(total_pages, current_page) {
+                const paginationContainer = document.querySelector('.pagination');
+                paginationContainer.innerHTML = '';
+            
+                // First button
+                if (current_page > 1) {
+                    const firstButton = document.createElement('a');
+                    firstButton.href = `?page=1`;
+                    firstButton.classList.add('first-button');
+                    firstButton.title = 'back to first';
+                    firstButton.innerHTML = '<i class="bx bx-chevrons-left"></i>';
+                    paginationContainer.appendChild(firstButton);
+                }
+            
+                // Previous button
+                if (current_page > 1) {
+                    const prevButton = document.createElement('a');
+                    prevButton.href = `?page=${current_page - 1}`;
+                    prevButton.classList.add('prev-button');
+                    prevButton.innerHTML = '<i class="bx bx-chevron-left"></i>';
+                    paginationContainer.appendChild(prevButton);
+                }
+            
+                // Page numbers
+                const start_page = Math.max(1, current_page - 2); // Ensure we don't go below 1
+                const end_page = Math.min(total_pages, current_page + 2); // Ensure we don't go above the last page
+            
+                for (let i = start_page; i <= end_page; i++) {
+                    const pageButton = document.createElement('a');
+                    pageButton.href = `?page=${i}`;
+                    pageButton.classList.add(i === current_page ? 'active' : '');
+                    pageButton.innerText = i;
+                    paginationContainer.appendChild(pageButton);
+                }
+            
+                // Next button
+                if (current_page < total_pages) {
+                    const nextButton = document.createElement('a');
+                    nextButton.href = `?page=${current_page + 1}`;
+                    nextButton.classList.add('next-button');
+                    nextButton.innerHTML = '<i class="bx bx-chevron-right"></i>';
+                    paginationContainer.appendChild(nextButton);
+                }
+            
+                // Last button
+                if (current_page < total_pages) {
+                    const lastButton = document.createElement('a');
+                    lastButton.href = `?page=${total_pages}`;
+                    lastButton.classList.add('last-button');
+                    lastButton.innerHTML = '<i class="bx bx-chevrons-right"></i>';
+                    paginationContainer.appendChild(lastButton);
+                }
+            }
 
-            users.forEach(user => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td><input type="checkbox" class="select-user" 
-                            data-fullname="${user.fullname}" 
-                            data-rank="${user.Rank}" 
-                            data-address="${user.address}" 
-                            data-mobile="${user.mobile}" 
-                            data-email="${user.email}" 
-                            value="${user.UserID}"></td>
-                    <td>${user.fullname}</td>
-                    <td>${user.Rank}</td>
-                    <td>${user.address}</td>
-                    <td>${user.mobile}</td>
-                    <td>${user.email}</td>
-                `;
-                tableBody.appendChild(row);
-            });
-
-            // Update pagination controls
-            updatePagination(total_pages, current_page);
-        })
-        .catch(error => console.error('Error loading faculty members:', error));
-}
-
-// Function to update pagination controls
-function updatePagination(total_pages, current_page) {
-    const paginationContainer = document.querySelector('.pagination');
-    paginationContainer.innerHTML = '';
-
-    // First button
-    if (current_page > 1) {
-        const firstButton = document.createElement('a');
-        firstButton.href = `?page=1`;
-        firstButton.classList.add('first-button');
-        firstButton.title = 'back to first';
-        firstButton.innerHTML = '<i class="bx bx-chevrons-left"></i>';
-        paginationContainer.appendChild(firstButton);
-    }
-
-    // Previous button
-    if (current_page > 1) {
-        const prevButton = document.createElement('a');
-        prevButton.href = `?page=${current_page - 1}`;
-        prevButton.classList.add('prev-button');
-        prevButton.innerHTML = '<i class="bx bx-chevron-left"></i>';
-        paginationContainer.appendChild(prevButton);
-    }
-
-    // Page numbers
-    const start_page = Math.max(1, current_page - 2); // Ensure we don't go below 1
-    const end_page = Math.min(total_pages, current_page + 2); // Ensure we don't go above the last page
-
-    for (let i = start_page; i <= end_page; i++) {
-        const pageButton = document.createElement('a');
-        pageButton.href = `?page=${i}`;
-        pageButton.classList.add(i === current_page ? 'active' : '');
-        pageButton.innerText = i;
-        paginationContainer.appendChild(pageButton);
-    }
-
-    // Next button
-    if (current_page < total_pages) {
-        const nextButton = document.createElement('a');
-        nextButton.href = `?page=${current_page + 1}`;
-        nextButton.classList.add('next-button');
-        nextButton.innerHTML = '<i class="bx bx-chevron-right"></i>';
-        paginationContainer.appendChild(nextButton);
-    }
-
-    // Last button
-    if (current_page < total_pages) {
-        const lastButton = document.createElement('a');
-        lastButton.href = `?page=${total_pages}`;
-        lastButton.classList.add('last-button');
-        lastButton.innerHTML = '<i class="bx bx-chevrons-right"></i>';
-        paginationContainer.appendChild(lastButton);
-    }
-}
-
-// Initial load of faculty members for the first page
-loadFacultyMembers(1);
+            // Initial load of faculty members for the first page
+            loadFacultyMembers(1);
 
             
 
@@ -970,7 +970,7 @@ loadFacultyMembers(1);
             function deleteUsersFromServer(selectedUsers) {
                 const userIDs = selectedUsers.map(user => user.UserID);
 
-                fetch('delete_users.php', {
+                fetch('delete_user.php', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ userIDs })
