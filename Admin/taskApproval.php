@@ -8,6 +8,7 @@ if (!isset($_SESSION['user_id'])) {
 
 include 'connection.php'; // Include your database connection
 
+// Function to fetch pending tasks along with user names
 function getPendingTasks($conn) {
     $query = "
         SELECT tasks.TaskID, tasks.Title, tasks.Type, tasks.taskContent, tasks.DueDate, tasks.DueTime, tasks.Status, useracc.fname, useracc.lname
@@ -33,7 +34,7 @@ function write_log($message) {
     file_put_contents($logfile, $logMessage, FILE_APPEND); // Append to logfile
 }
 
-// Function to send SMS via Semaphore API
+// Function to send bulk SMS
 function send_bulk_sms($conn, $ContentID, $notificationTitle, $Title, $DueDate, $DueTime) {
     $mobileQuery = $conn->prepare("
         SELECT ua.mobile, UPPER(CONCAT(ua.fname, ' ', ua.lname)) AS FullName 
@@ -51,6 +52,7 @@ function send_bulk_sms($conn, $ContentID, $notificationTitle, $Title, $DueDate, 
 
         while ($row = $mobileResult->fetch_assoc()) {
             $mobileNumbers[] = $row['mobile']; // Add mobile number to the array
+            // Pass the DueDate and DueTime to the SMS message
             $messages[] = "NEW TASK ALERT!\n\nHi " . $row['FullName'] . "! " . $notificationTitle . " \"" . $Title . "\" Due on " . $DueDate . " at " . $DueTime . ". Don't miss it! Have a nice day!";
         }
 
@@ -95,17 +97,16 @@ function send_bulk_sms($conn, $ContentID, $notificationTitle, $Title, $DueDate, 
         write_log("No mobile numbers found for ContentID $ContentID");
     }
 }
-
 // Function to approve or reject tasks
 function updateTaskStatus($conn, $taskIDs, $status) {
     $ids = implode(',', array_map('intval', $taskIDs));
-
+    
     // Begin Transaction
     mysqli_begin_transaction($conn, MYSQLI_TRANS_START_READ_WRITE);
 
     $query = "UPDATE tasks SET ApprovalStatus = ? WHERE TaskID IN ($ids)";
     $stmt = mysqli_prepare($conn, $query);
-
+    
     if ($stmt === false) {
         write_log("Error preparing statement: " . mysqli_error($conn));
         mysqli_rollback($conn);
@@ -181,12 +182,37 @@ function updateTaskStatus($conn, $taskIDs, $status) {
 
                 if ($notifStmt->execute()) {
                     $notifID = $notifStmt->insert_id;
-
+                
+                    // Additional notification for approval
+                    $approvalNotificationTitle = "Your Task has been Approved!";
+                    $approvalNotificationContent = "Task: $taskTitle has been approved by the administrator.";
+                    $approvalNotifStmt = $conn->prepare("INSERT INTO notifications (UserID, TaskID, ContentID, Title, Content, Status) VALUES (?, ?, ?, ?, ?, ?)");
+                    $approvalNotifStmt->bind_param("sssssi", $creatorUserID, $TaskID, $ContentID, $approvalNotificationTitle, $approvalNotificationContent, $status);
+                
+                    if ($approvalNotifStmt->execute()) {
+                        $approvalNotifID = $approvalNotifStmt->insert_id;
+                
+                        // Link the approval notification to the creator
+                        $notifUserApprovalStmt = $conn->prepare("INSERT INTO notif_user (NotifID, UserID, Status, TimeStamp) VALUES (?, ?, ?, ?)");
+                        $notifUserApprovalStmt->bind_param("iiss", $approvalNotifID, $creatorUserID, $status, $timestamp);
+                
+                        if (!$notifUserApprovalStmt->execute()) {
+                            write_log("Error inserting approval notification for task creator: " . $notifUserApprovalStmt->error);
+                            mysqli_rollback($conn);
+                            return false;
+                        }
+                        $notifUserApprovalStmt->close();
+                    } else {
+                        write_log("Error inserting approval notification: " . $approvalNotifStmt->error);
+                        mysqli_rollback($conn);
+                        return false;
+                    }
+                    $approvalNotifStmt->close();
+                
                     // Insert into notif_user for each associated user
                     foreach ($userResult as $row) {
                         $userInContentId = $row['UserID'];
                         $notifUserStmt = $conn->prepare("INSERT INTO notif_user (NotifID, UserID, Status, TimeStamp) VALUES (?, ?, ?, ?)");
-                        $timestamp = date("Y-m-d H:i:s");
                         $notifUserStmt->bind_param("iiss", $notifID, $userInContentId, $status, $timestamp);
                         if (!$notifUserStmt->execute()) {
                             write_log("Error inserting into notif_user: " . $notifUserStmt->error);
@@ -195,17 +221,18 @@ function updateTaskStatus($conn, $taskIDs, $status) {
                         }
                         $notifUserStmt->close();
                     }
-
-                    // Call the SMS sending function
+                
+                    // Call send_bulk_sms after all notifications are set up
                     send_bulk_sms($conn, $ContentID, $notificationTitle, $taskTitle, $DueDate, $DueTime);
                 } else {
                     write_log("Error inserting into notifications: " . $notifStmt->error);
                     mysqli_rollback($conn);
                     return false;
                 }
-
+                
                 $notifStmt->close();
                 $contentQuery->close();
+
             }
             $userContentQuery->close();
         }
