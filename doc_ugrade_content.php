@@ -45,7 +45,7 @@ if (isset($_GET['id']) && !empty($_GET['id'])) {
     $contentQuery = "SELECT fc.Title, fc.Captions 
                 FROM userfolders gf
                 JOIN usercontent uc ON uc.UserContentID = gf.UserContentID
-                JOIN feedfontent fc ON fc.ContentID = uc.ContentID
+                JOIN feedcontent fc ON fc.ContentID = uc.ContentID
                 WHERE gf.UserFolderID = $userFolderId";
     $contentResult = mysqli_query($conn, $contentQuery);
     if (!$contentResult) {
