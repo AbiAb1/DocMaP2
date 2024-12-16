@@ -3,127 +3,70 @@ include 'connection.php';
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
-require 'vendor/autoload.php'; // Path to Composer autoload file
+require 'vendor/autoload.php';
 
 header('Content-Type: application/json');
-
 $response = array('status' => 'error');
 
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
+ob_start(); // Start output buffering
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $id = intval($_POST['id']);
-    $action = $_POST['action'];
+    $id = intval($_POST['id'] ?? 0);
+    $action = $_POST['action'] ?? '';
 
-    if ($action === 'approve') {
-        $stmt = $conn->prepare("UPDATE useracc SET Status = 'Approved' WHERE UserID = ?");
-        if ($stmt) {
-            $stmt->bind_param("i", $id);
-            if ($stmt->execute()) {
-                $response['status'] = 'success';
-                $stmt->close();
+    if (!$id || !$action) {
+        $response['message'] = 'Invalid input data';
+        echo json_encode($response);
+        exit;
+    }
 
-                // Fetch user details for email
-                $stmt = $conn->prepare("SELECT email, fname, lname, Username, Password FROM useracc WHERE UserID = ?");
+    try {
+        if ($action === 'approve') {
+            $stmt = $conn->prepare("UPDATE useracc SET Status = 'Approved' WHERE UserID = ?");
+            if ($stmt) {
                 $stmt->bind_param("i", $id);
-                $stmt->execute();
-                $user = $stmt->get_result()->fetch_assoc();
-                $stmt->close();
+                if ($stmt->execute()) {
+                    $response['status'] = 'success';
+                    $stmt->close();
 
-                if ($user) {
-                    // Send email for approval
-                    $mail = new PHPMailer(true);
-                    try {
-                        // Server settings
+                    $stmt = $conn->prepare("SELECT email, fname, lname, Username, Password FROM useracc WHERE UserID = ?");
+                    $stmt->bind_param("i", $id);
+                    $stmt->execute();
+                    $user = $stmt->get_result()->fetch_assoc();
+                    $stmt->close();
+
+                    if ($user) {
+                        $mail = new PHPMailer(true);
                         $mail->isSMTP();
-                        $mail->Host       = 'smtp.gmail.com'; // Set the SMTP server to send through
-                        $mail->SMTPAuth   = true;
-                        $mail->Username   = 'proftal2024@gmail.com'; // SMTP username
-                        $mail->Password   = 'ytkj saab gnkb cxwa'; // SMTP password
+                        $mail->Host = 'smtp.gmail.com';
+                        $mail->SMTPAuth = true;
+                        $mail->Username = 'proftal2024@gmail.com';
+                        $mail->Password = 'ytkj saab gnkb cxwa';
                         $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-                        $mail->Port       = 587; // TCP port to connect to
+                        $mail->Port = 587;
 
-                        // Recipients
                         $mail->setFrom('proftal2024@gmail.com', 'ProfTal');
-                        $mail->addAddress($user['email'], $user['fname'] . ' ' . $user['lname']); // Add recipient
+                        $mail->addAddress($user['email'], "{$user['fname']} {$user['lname']}");
 
-                        // Content
                         $mail->isHTML(true);
                         $mail->Subject = 'Account Approved';
-                        $mail->Body    = "Dear {$user['fname']} {$user['lname']},<br><br>Your account has been approved! Your username and password are:<br><br>Username: {$user['Username']}<br>Password: {$user['Password']}<br><br>You may now login to the ProfTal.<br><br>Best regards,<br>Admin";
+                        $mail->Body = "Dear {$user['fname']} {$user['lname']},<br>Your account has been approved!<br>";
 
                         $mail->send();
-                        $response['email_status'] = 'sent'; // Add email status
-                    } catch (Exception $e) {
-                        error_log("PHPMailer Error: " . $mail->ErrorInfo);
-                        $response['email_status'] = 'failed'; // Add email status
-                        $response['email_error'] = $mail->ErrorInfo; // Add error info
+                        $response['email_status'] = 'sent';
                     }
                 }
             } else {
-                error_log("SQL Error: " . $stmt->error);
-                $response['error'] = "SQL Error: " . $stmt->error;
+                throw new Exception("SQL Prepare Error: " . $conn->error);
             }
-        } else {
-            error_log("SQL Prepare Error: " . $conn->error);
-            $response['error'] = "SQL Prepare Error: " . $conn->error;
         }
-    } elseif ($action === 'reject') {
-        $stmt = $conn->prepare("UPDATE useracc SET Status = 'Rejected' WHERE UserID = ?");
-        if ($stmt) {
-            $stmt->bind_param("i", $id);
-            if ($stmt->execute()) {
-                $response['status'] = 'success';
-                $stmt->close();
-
-                // Fetch user details for email
-                $stmt = $conn->prepare("SELECT email, fname, lname FROM useracc WHERE UserID = ?");
-                $stmt->bind_param("i", $id);
-                $stmt->execute();
-                $user = $stmt->get_result()->fetch_assoc();
-                $stmt->close();
-
-                if ($user) {
-                    // Send email for rejection
-                    $mail = new PHPMailer(true);
-                    try {
-                        // Server settings
-                        $mail->isSMTP();
-                        $mail->Host       = 'smtp.gmail.com'; // Set the SMTP server to send through
-                        $mail->SMTPAuth   = true;
-                        $mail->Username   = 'proftal2024@gmail.com'; // SMTP username
-                        $mail->Password   = 'ytkj saab gnkb cxwa'; // SMTP password
-                        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-                        $mail->Port       = 587; // TCP port to connect to
-
-                        // Recipients
-                        $mail->setFrom('proftal2024@gmail.com', 'ProfTal');
-                        $mail->addAddress($user['email'], $user['fname'] . ' ' . $user['lname']); // Add recipient
-
-                        // Content
-                        $mail->isHTML(true);
-                        $mail->Subject = 'Account Rejected';
-                        $mail->Body    = "Dear {$user['fname']} {$user['lname']},<br><br>Your account has been rejected. Please contact support for further assistance.<br><br>Best regards,<br>Admin";
-
-                        $mail->send();
-                        $response['email_status'] = 'sent'; // Add email status
-                    } catch (Exception $e) {
-                        error_log("PHPMailer Error: " . $mail->ErrorInfo);
-                        $response['email_status'] = 'failed'; // Add email status
-                        $response['email_error'] = $mail->ErrorInfo; // Add error info
-                    }
-                }
-            } else {
-                error_log("SQL Error: " . $stmt->error);
-                $response['error'] = "SQL Error: " . $stmt->error;
-            }
-        } else {
-            error_log("SQL Prepare Error: " . $conn->error);
-            $response['error'] = "SQL Prepare Error: " . $conn->error;
-        }
+    } catch (Exception $e) {
+        $response['error'] = $e->getMessage();
+        error_log($e->getMessage());
     }
-    $conn->close();
-    echo json_encode($response);
 }
+
+ob_end_clean(); // Clean output buffer
+echo json_encode($response);
+$conn->close();
 ?>
