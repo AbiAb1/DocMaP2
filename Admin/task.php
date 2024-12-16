@@ -1298,7 +1298,7 @@ $result = $conn->query($query);
                                             </button>
                                             <div id="titleDropdown" class="title-dropdown-menu">
                                                 <?php while ($row = $result->fetch_assoc()): ?>
-                                                    <button type="button" class="title-dropdown-item" onclick="setTitle('<?php echo htmlspecialchars($row['Title']); ?>', <?php echo $row['TaskID']; ?>)">
+                                                    <button type="button" class="title-dropdown-item" onclick="setTitle('<?php echo htmlspecialchars($row['Title']); ?>')">
                                                         <?php echo htmlspecialchars($row['Title']); ?>
                                                     </button>
                                                 <?php endwhile; ?>
