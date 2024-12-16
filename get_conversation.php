@@ -64,7 +64,8 @@ if ($stmt_task_user->execute()) {
 // Set the Content-Type header before any output
 header('Content-Type: application/json'); 
 
-$json_response = json_encode($messages);
+// Encode the messages array to JSON and output it
+$json_response = json_encode(['messages' => $messages]); // Wrap messages in an array
 if (json_last_error() !== JSON_ERROR_NONE) {
     echo json_encode(['error' => 'Error encoding JSON: ' . json_last_error_msg()]);
     exit();
