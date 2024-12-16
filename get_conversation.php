@@ -25,11 +25,14 @@ $stmt_comments->bind_param("ii", $content_id, $task_id);
 if ($stmt_comments->execute()) {
     $result = $stmt_comments->get_result();
     while ($row = $result->fetch_assoc()) {
-        $row['profile'] = htmlspecialchars($row['profile']);
-        $row['FullName'] = htmlspecialchars($row['fname'] . ' ' . $row['lname']);
-        $row['Comment'] = htmlspecialchars($row['Comment']);
-        $row['source'] = 'comments';
-        $messages[] = $row;
+        $messages[] = [
+            'Comment' => htmlspecialchars($row['Comment']),
+            'IncomingID' => intval($row['IncomingID']),
+            'OutgoingID' => intval($row['OutgoingID']),
+            'FullName' => htmlspecialchars($row['fname'] . ' ' . $row['lname']),
+            'profile' => htmlspecialchars($row['profile']),
+            'source' => 'comments'
+        ];
     }
 } else {
     echo json_encode(['error' => 'Error preparing statement for comments: ' . $conn->error]);
@@ -58,6 +61,7 @@ if ($stmt_task_user->execute()) {
     exit();
 }
 
+// Encode the messages array to JSON and output it
 echo json_encode(['messages' => $messages]);
 
 $conn->close();
