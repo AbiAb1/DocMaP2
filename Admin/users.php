@@ -1,6 +1,7 @@
 <?php
 include 'connection.php';
 session_start();
+header('Content-Type: application/json');
 
 // Handle user approval or rejection
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
