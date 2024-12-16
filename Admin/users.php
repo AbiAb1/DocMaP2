@@ -1,7 +1,6 @@
 <?php
 include 'connection.php';
 session_start();
-header('Content-Type: application/json');
 
 // Handle user approval or rejection
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -422,7 +421,7 @@ $conn->close();
         function modifyUserStatus(id, action) {
             fetch('approve_user.php', { // Ensure this URL is correct
                 method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
                 body: `id=${id}&action=${action}`
             })
             .then(response => response.json())
