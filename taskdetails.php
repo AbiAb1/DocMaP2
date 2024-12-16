@@ -616,7 +616,7 @@ mysqli_close($conn);
             });
         });
 
-     function fetchConversationMessages() {
+    function fetchConversationMessages() {
     const content_id = document.querySelector('input[name="content_id"]').value;
     const task_id = document.querySelector('input[name="task_id"]').value;
 
@@ -637,9 +637,11 @@ mysqli_close($conn);
             const conversationMessages = document.getElementById('conversationMessages');
             conversationMessages.innerHTML = '';
 
+            console.log("Data received:", data); // Add a console log to check the data
+
             if (data.error) {
                 conversationMessages.innerText = data.error;
-            } else {
+            } else if (data.messages) { // Check if data.messages exists
                 data.messages.forEach(message => {
                     const messageElement = document.createElement('div');
                     messageElement.classList.add('message');
@@ -716,6 +718,9 @@ mysqli_close($conn);
 
                     conversationMessages.appendChild(messageElement);
                 });
+            } else {
+                console.error('Error fetching conversation messages: "messages" array not found in response.');
+                document.getElementById('conversationMessages').innerText = 'Error fetching conversation messages.';
             }
         })
         .catch(error => {
