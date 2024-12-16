@@ -45,8 +45,6 @@ foreach ($statuses as $status) {
 }
 
 $conn->close();
-
-echo json_encode($usersByStatus);
 ?>
 
 
