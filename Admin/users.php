@@ -2,9 +2,6 @@
 include 'connection.php';
 session_start();
 
-// Set JSON header
-header('Content-Type: application/json');
-
 // Check for valid POST request
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!isset($_POST['id'], $_POST['action'])) {
