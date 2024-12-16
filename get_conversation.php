@@ -2,7 +2,6 @@
 session_start();
 require 'connection.php';
 
-// Ensure user is logged in
 if (!isset($_SESSION['user_id'])) {
     echo json_encode(['error' => 'You need to log in to view the conversation.']);
     exit();
@@ -19,36 +18,29 @@ if (empty($content_id) || empty($task_id)) {
 
 $messages = [];
 
-// Get the conversation messages ordered by CommentID from the comments table
-$sql_comments = "SELECT comments.Comment, comments.IncomingID, comments.OutgoingID, useracc.fname, useracc.lname, useracc.profile
-                 FROM comments 
-                 JOIN useracc ON comments.IncomingID = useracc.UserID 
-                 WHERE comments.ContentID = ? AND comments.TaskID = ? 
-                 ORDER BY comments.CommentID";
-
-if ($stmt_comments = $conn->prepare($sql_comments)) {
-    $stmt_comments->bind_param("ii", $content_id, $task_id);
-    $stmt_comments->execute();
+// Fetch comments
+$sql_comments = "SELECT comments.Comment, comments.IncomingID, comments.OutgoingID, useracc.fname, useracc.lname, useracc.profile FROM comments JOIN useracc ON comments.IncomingID = useracc.UserID WHERE comments.ContentID = ? AND comments.TaskID = ? ORDER BY comments.CommentID";
+$stmt_comments = $conn->prepare($sql_comments);
+$stmt_comments->bind_param("ii", $content_id, $task_id);
+if ($stmt_comments->execute()) {
     $result = $stmt_comments->get_result();
     while ($row = $result->fetch_assoc()) {
         $row['profile'] = htmlspecialchars($row['profile']);
         $row['FullName'] = htmlspecialchars($row['fname'] . ' ' . $row['lname']);
         $row['Comment'] = htmlspecialchars($row['Comment']);
-        $row['source'] = 'comments'; // Identifier for the source table
+        $row['source'] = 'comments';
         $messages[] = $row;
     }
-    $stmt_comments->close();
 } else {
     echo json_encode(['error' => 'Error preparing statement for comments: ' . $conn->error]);
-    $conn->close();
     exit();
 }
 
-// Get the comment from the task_user table
-$sql_task_user = "SELECT Comment,Status,ApproveDate, RejectDate FROM task_user WHERE TaskID = ? AND ContentID = ? AND UserID = ?";
-if ($stmt_task_user = $conn->prepare($sql_task_user)) {
-    $stmt_task_user->bind_param("iii", $task_id, $content_id, $user_id);
-    $stmt_task_user->execute();
+// Fetch task_user comments
+$sql_task_user = "SELECT Comment, Status, ApproveDate, RejectDate FROM task_user WHERE TaskID = ? AND ContentID = ? AND UserID = ?";
+$stmt_task_user = $conn->prepare($sql_task_user);
+$stmt_task_user->bind_param("iii", $task_id, $content_id, $user_id);
+if ($stmt_task_user->execute()) {
     $result_task_user = $stmt_task_user->get_result();
     if ($row_task_user = $result_task_user->fetch_assoc()) {
         $task_user_comment = [
@@ -56,15 +48,13 @@ if ($stmt_task_user = $conn->prepare($sql_task_user)) {
             'Status' => htmlspecialchars($row_task_user['Status']),
             'ApproveDate' => htmlspecialchars($row_task_user['ApproveDate']),
             'RejectDate' => htmlspecialchars($row_task_user['RejectDate']),
-            'FullName' => 'Task Remarks', // Distinct identifier for task_user comments
-            'source' => 'task_user' // Identifier for the source table
+            'FullName' => 'Task Remarks',
+            'source' => 'task_user'
         ];
         $messages[] = $task_user_comment;
     }
-    $stmt_task_user->close();
 } else {
     echo json_encode(['error' => 'Error preparing statement for task_user: ' . $conn->error]);
-    $conn->close();
     exit();
 }
 
