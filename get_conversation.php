@@ -62,7 +62,7 @@ if ($stmt_task_user->execute()) {
 }
 
 // Encode the messages array to JSON and output it
-echo json_encode(['messages' => $messages]);
+echo json_encode($messages);
 
 $conn->close();
 ?>
