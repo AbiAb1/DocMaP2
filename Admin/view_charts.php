@@ -30,8 +30,8 @@ if ($stmt_user = $conn->prepare($sql_user)) {
 
 
 // Fetch distinct School Years and Grades
-$schoolYears = $conn->query("SELECT DISTINCT Year_Range FROM SchoolYear");
-$grades = $conn->query("SELECT DISTINCT Grade_Level FROM Grade");
+$schoolYears = $conn->query("SELECT DISTINCT Year_Range FROM schoolyear");
+$grades = $conn->query("SELECT DISTINCT Grade_Level FROM grade");
 
 // Default filter values
 $selectedYear = $_GET['school_year'] ?? null;
@@ -46,15 +46,15 @@ $sql = "
            AVG(c.Cohort_Rate) AS avg_cohort_rate, 
            AVG(r.Repeaters_Rate) AS avg_repetition_rate, 
            AVG(t.Transition_Rate) AS avg_transition_rate
-    FROM Performance_Indicator pi
-    JOIN Grade g ON pi.Grade_ID = g.Grade_ID
-    JOIN Enroll e ON pi.Enroll_ID = e.Enroll_ID
-    JOIN Dropout d ON pi.Dropout_ID = d.Dropout_ID
-    JOIN Promotion p ON pi.Promotion_ID = p.Promotion_ID
-    JOIN Cohort_Survival c ON pi.Cohort_ID = c.Cohort_ID
-    JOIN Repetition r ON pi.Repetition_ID = r.Repetition_ID
-    JOIN Transition t ON pi.Transition_ID = t.Transition_ID
-    JOIN SchoolYear sy ON pi.School_Year_ID = sy.School_Year_ID
+    FROM performance_indicator pi
+    JOIN grade g ON pi.Grade_ID = g.Grade_ID
+    JOIN enroll e ON pi.Enroll_ID = e.Enroll_ID
+    JOIN dropout d ON pi.Dropout_ID = d.Dropout_ID
+    JOIN promotion p ON pi.Promotion_ID = p.Promotion_ID
+    JOIN cohort_survival c ON pi.Cohort_ID = c.Cohort_ID
+    JOIN repetition r ON pi.Repetition_ID = r.Repetition_ID
+    JOIN transition t ON pi.Transition_ID = t.Transition_ID
+    JOIN schoolyear sy ON pi.School_Year_ID = sy.School_Year_ID
     WHERE 1=1";
 
 // Add filters
