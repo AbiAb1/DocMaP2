@@ -616,7 +616,7 @@ mysqli_close($conn);
             });
         });
 
-       function fetchConversationMessages() {
+     function fetchConversationMessages() {
     const content_id = document.querySelector('input[name="content_id"]').value;
     const task_id = document.querySelector('input[name="task_id"]').value;
 
@@ -625,7 +625,13 @@ mysqli_close($conn);
             if (!response.ok) {
                 throw new Error('Network response was not ok ' + response.statusText);
             }
-            return response.json();
+
+            // Check if the response is JSON
+            if (response.headers.get('content-type').includes('application/json')) {
+                return response.json();
+            } else {
+                throw new Error('Response is not in JSON format');
+            }
         })
         .then(data => {
             const conversationMessages = document.getElementById('conversationMessages');
@@ -717,7 +723,6 @@ mysqli_close($conn);
             document.getElementById('conversationMessages').innerText = 'Error fetching conversation messages: ' + error.message;
         });
 }
-
 
     </script>
 
