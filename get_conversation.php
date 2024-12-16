@@ -62,7 +62,13 @@ if ($stmt_task_user->execute()) {
 }
 
 // Encode the messages array to JSON and output it
-echo json_encode($messages);
+header('Content-Type: application/json'); // Set the Content-Type header
+$json_response = json_encode($messages);
+if (json_last_error() !== JSON_ERROR_NONE) {
+    echo json_encode(['error' => 'Error encoding JSON: ' . json_last_error_msg()]);
+    exit();
+}
+echo $json_response;
 
 $conn->close();
 ?>
