@@ -349,7 +349,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 
     // Check if the email already exists in the useracc table
-    $emailCheckQuery = "SELECT * FROM useracc WHERE Email = ?";
+    $emailCheckQuery = "SELECT * FROM useracc WHERE email = ?";
     $emailCheckStmt = $conn->prepare($emailCheckQuery);
     $emailCheckStmt->bind_param("s", $email);
     $emailCheckStmt->execute();
