@@ -45,6 +45,11 @@ foreach ($statuses as $status) {
 }
 
 $conn->close();
+
+// Output data as JSON
+header('Content-Type: application/json');
+echo json_encode($usersByStatus);
+
 ?>
 
 
