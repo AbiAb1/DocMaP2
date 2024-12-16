@@ -621,7 +621,12 @@ mysqli_close($conn);
     const task_id = document.querySelector('input[name="task_id"]').value;
 
     fetch(`get_conversation.php?content_id=${content_id}&task_id=${task_id}`)
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
         .then(data => {
             const conversationMessages = document.getElementById('conversationMessages');
             conversationMessages.innerHTML = '';
@@ -630,68 +635,54 @@ mysqli_close($conn);
                 conversationMessages.innerText = data.error;
             } else {
                 data.messages.forEach(message => {
-                    // Skip display if the comment is empty
                     if (!message.Comment) return;
 
                     const messageElement = document.createElement('div');
                     messageElement.classList.add('message');
 
-                    // Create elements for task_user comment
                     if (message.source === 'task_user') {
                         const taskUserContainer = document.createElement('div');
-                        taskUserContainer.classList.add('task-user-message'); // New class name for task_user
+                        taskUserContainer.classList.add('task-user-message');
 
-                        // Set background color based on Status
                         if (message.Status === 'Approved') {
-                            taskUserContainer.style.backgroundColor = '#e0f7e0'; // Green tint
-                            taskUserContainer.style.borderColor = '#81c784'; // Lighter green border
+                            taskUserContainer.style.backgroundColor = '#e0f7e0';
+                            taskUserContainer.style.borderColor = '#81c784';
                         } else if (message.Status === 'Rejected') {
-                            taskUserContainer.style.backgroundColor = '#ffebee'; // Red tint
-                            taskUserContainer.style.borderColor = '#e57373'; // Lighter red border
+                            taskUserContainer.style.backgroundColor = '#ffebee';
+                            taskUserContainer.style.borderColor = '#e57373';
                         }
 
-                        // Full name with dot icon
                         const userNameBadge = document.createElement('span');
                         userNameBadge.classList.add('task-user-badge');
                         userNameBadge.innerText = message.FullName;
 
                         const dotIcon = document.createElement('span');
                         dotIcon.classList.add('dot-icon');
-                        dotIcon.innerHTML = '&bull;'; // Dot icon
+                        dotIcon.innerHTML = '&bull;';
 
-                        // Dates (Approve or Reject Date)
                         const dateText = document.createElement('span');
                         dateText.classList.add('task-user-date');
                         let date = '';
                         if (message.Status === 'Approved' && message.ApproveDate) {
-                            date = new Date(message.ApproveDate).toLocaleString('en-GB', { 
-                                year: 'numeric', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' 
-                            });
+                            date = new Date(message.ApproveDate).toLocaleString('en-GB', { year: 'numeric', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' });
                             dateText.innerText = ` ${date}`;
                         } else if (message.Status === 'Rejected' && message.RejectDate) {
-                            date = new Date(message.RejectDate).toLocaleString('en-GB', { 
-                                year: 'numeric', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' 
-                            });
+                            date = new Date(message.RejectDate).toLocaleString('en-GB', { year: 'numeric', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' });
                             dateText.innerText = ` ${date}`;
                         }
 
-                        // Append full name, dot, and date to taskUserContainer
                         taskUserContainer.appendChild(userNameBadge);
                         taskUserContainer.appendChild(dotIcon);
                         taskUserContainer.appendChild(dateText);
 
-                        // Comment text
                         const messageText = document.createElement('p');
                         messageText.classList.add('task-user-text');
                         messageText.innerText = message.Comment;
 
-                        // Append message text to taskUserContainer
                         taskUserContainer.appendChild(messageText);
 
-                        // Append taskUserContainer to messageElement
                         messageElement.appendChild(taskUserContainer);
                     } else {
-                        // Elements for normal comments with profile picture and standard layout
                         const profilePic = document.createElement('img');
                         profilePic.src = `img/UserProfile/${message.profile}`;
                         profilePic.alt = `${message.FullName}'s profile picture`;
@@ -705,13 +696,11 @@ mysqli_close($conn);
                         messageText.classList.add('message-text');
                         messageText.innerText = message.Comment;
 
-                        // Append elements to messageElement
                         messageElement.appendChild(profilePic);
                         messageElement.appendChild(userName);
                         messageElement.appendChild(messageText);
                     }
 
-                    // Apply appropriate class for message type (incoming or outgoing)
                     if (message.IncomingID == <?php echo json_encode($_SESSION['user_id']); ?>) {
                         messageElement.classList.add('incoming');
                     } else {
@@ -724,6 +713,7 @@ mysqli_close($conn);
         })
         .catch(error => {
             console.error('Error fetching conversation messages:', error);
+            document.getElementById('responseMessage').innerText = 'Error fetching messages.';
         });
 }
 
