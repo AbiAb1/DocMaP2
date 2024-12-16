@@ -43,9 +43,7 @@ foreach ($statuses as $status) {
     $usersByStatus[$status] = $users;
     $stmt->close();
 }
-echo json_encode($usersByStatus);
 $conn->close();
-exit;
 ?>
 
 
