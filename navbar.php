@@ -81,7 +81,7 @@
         $user_id = $_SESSION['user_id'];// Assuming UserID is stored in session
 
         // Query to check if the user is a chairperson
-        $sql = "SELECT * FROM Chairperson WHERE UserID = ?";
+        $sql = "SELECT * FROM chairperson WHERE UserID = ?";
 
         // Prepare and execute the query
         $stmt = $conn->prepare($sql);
