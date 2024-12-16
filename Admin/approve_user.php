@@ -124,6 +124,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
     $conn->close();
+    header('Content-Type: application/json');
     echo json_encode($response);
 }
 ?>
