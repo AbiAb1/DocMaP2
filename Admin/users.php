@@ -2,6 +2,10 @@
 include 'connection.php';
 session_start();
 
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
+
+
 // Handle user approval or rejection
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $id = intval($_POST['id']);
