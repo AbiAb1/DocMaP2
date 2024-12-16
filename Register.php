@@ -376,7 +376,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $status = $found ? 'Approved' : 'Pending';
 
         // Use prepared statements for database insertion
-        $stmt = $conn->prepare("INSERT INTO useracc (Username, Password, fname, mname, lname, bday, sex, address, email, Rank, mobile, Status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+        $stmt = $conn->prepare("INSERT INTO useracc (Username, Password, fname, mname, lname, bday, sex, address, email, 'Rank', mobile, Status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
         $stmt->bind_param("ssssssssssss", $password, $hashedPassword, $firstname, $middleinitial, $lastname, $birthday, $gender, $address, $email, $ranking, $mobile, $status);
         if ($stmt->execute()) {
             // Fetch user details from useracc table
