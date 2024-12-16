@@ -616,7 +616,7 @@ mysqli_close($conn);
             });
         });
 
-        function fetchConversationMessages() {
+       function fetchConversationMessages() {
     const content_id = document.querySelector('input[name="content_id"]').value;
     const task_id = document.querySelector('input[name="task_id"]').value;
 
@@ -635,9 +635,6 @@ mysqli_close($conn);
                 conversationMessages.innerText = data.error;
             } else {
                 data.messages.forEach(message => {
-                    // Skip display if the comment is empty
-                    if (!message.Comment) return;
-
                     const messageElement = document.createElement('div');
                     messageElement.classList.add('message');
 
