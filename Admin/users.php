@@ -2,10 +2,20 @@
 include 'connection.php';
 session_start();
 
-// Handle user approval or rejection
+// Set JSON header
+header('Content-Type: application/json');
+
+// Check for valid POST request
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (!isset($_POST['id'], $_POST['action'])) {
+        http_response_code(400);
+        echo json_encode(['status' => 'error', 'message' => 'Invalid request']);
+        exit;
+    }
+
     $id = intval($_POST['id']);
     $action = $_POST['action'];
+    $stmt = null;
 
     if ($action === 'approve') {
         $stmt = $conn->prepare("UPDATE useracc SET Status = 'Approved' WHERE UserID = ?");
@@ -13,38 +23,46 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt = $conn->prepare("UPDATE useracc SET Status = 'Rejected' WHERE UserID = ?");
     }
 
-    if (isset($stmt)) {
+    if ($stmt) {
         $stmt->bind_param("i", $id);
-        $response = array('status' => 'error');
         if ($stmt->execute()) {
-            $response['status'] = 'success';
+            echo json_encode(['status' => 'success']);
+        } else {
+            echo json_encode(['status' => 'error', 'message' => 'Database update failed']);
         }
         $stmt->close();
-        echo json_encode($response);
-        $conn->close();
-        exit;
+    } else {
+        http_response_code(500);
+        echo json_encode(['status' => 'error', 'message' => 'Failed to prepare statement']);
     }
+    $conn->close();
+    exit;
 }
 
-// Fetch users based on status
+// Fetch users by status
 $statuses = ['Pending', 'Approved', 'Rejected'];
 $usersByStatus = [];
 
 foreach ($statuses as $status) {
     $stmt = $conn->prepare("SELECT UserID, fname, mname, lname, role, date_registered FROM useracc WHERE Status = ?");
-    $stmt->bind_param("s", $status);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    $users = [];
-    while ($row = $result->fetch_assoc()) {
-        $users[] = $row;
+    if ($stmt) {
+        $stmt->bind_param("s", $status);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $users = [];
+        while ($row = $result->fetch_assoc()) {
+            $users[] = $row;
+        }
+        $usersByStatus[$status] = $users;
+        $stmt->close();
+    } else {
+        $usersByStatus[$status] = [];
     }
-    $usersByStatus[$status] = $users;
-    $stmt->close();
 }
 
 $conn->close();
 ?>
+
 
 
 <!DOCTYPE html>
