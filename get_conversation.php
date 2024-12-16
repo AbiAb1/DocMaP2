@@ -26,11 +26,11 @@ if ($stmt_comments->execute()) {
     $result = $stmt_comments->get_result();
     while ($row = $result->fetch_assoc()) {
         $messages[] = [
-            'Comment' => htmlspecialchars($row['Comment']),
+            'Comment' => htmlspecialchars($row['Comment'] ?? ''), // Handle null values
             'IncomingID' => intval($row['IncomingID']),
             'OutgoingID' => intval($row['OutgoingID']),
             'FullName' => htmlspecialchars($row['fname'] . ' ' . $row['lname']),
-            'profile' => htmlspecialchars($row['profile']),
+            'profile' => htmlspecialchars($row['profile'] ?? ''), // Handle null values
             'source' => 'comments'
         ];
     }
@@ -47,10 +47,10 @@ if ($stmt_task_user->execute()) {
     $result_task_user = $stmt_task_user->get_result();
     if ($row_task_user = $result_task_user->fetch_assoc()) {
         $task_user_comment = [
-            'Comment' => htmlspecialchars($row_task_user['Comment']),
+            'Comment' => htmlspecialchars($row_task_user['Comment'] ?? ''), // Handle null values
             'Status' => htmlspecialchars($row_task_user['Status']),
-            'ApproveDate' => htmlspecialchars($row_task_user['ApproveDate']),
-            'RejectDate' => htmlspecialchars($row_task_user['RejectDate']),
+            'ApproveDate' => htmlspecialchars($row_task_user['ApproveDate'] ?? ''), // Handle null values
+            'RejectDate' => htmlspecialchars($row_task_user['RejectDate'] ?? ''), // Handle null values
             'FullName' => 'Task Remarks',
             'source' => 'task_user'
         ];
@@ -61,8 +61,9 @@ if ($stmt_task_user->execute()) {
     exit();
 }
 
-// Encode the messages array to JSON and output it
-header('Content-Type: application/json'); // Set the Content-Type header
+// Set the Content-Type header before any output
+header('Content-Type: application/json'); 
+
 $json_response = json_encode($messages);
 if (json_last_error() !== JSON_ERROR_NONE) {
     echo json_encode(['error' => 'Error encoding JSON: ' . json_last_error_msg()]);
