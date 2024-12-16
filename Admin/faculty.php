@@ -13,9 +13,9 @@ $sql = "
     FROM 
         chairperson
     INNER JOIN 
-        useracc ON Chairperson.UserID = useracc.UserID
+        useracc ON chairperson.UserID = useracc.UserID
     INNER JOIN 
-        grade ON Chairperson.Grade_ID = grade.Grade_ID
+        grade ON chairperson.Grade_ID = grade.Grade_ID
 ";
 $result = $conn->query($sql);
 
