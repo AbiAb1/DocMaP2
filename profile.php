@@ -656,107 +656,107 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
 </script>
 
-    <script>
-$('#uploadBtn').click(function (e) {
-    e.preventDefault();
+  <script>
+$(document).ready(function () {
+    // Upload Button Click Event
+    $('#uploadBtn').click(function (e) {
+        e.preventDefault();
 
-    var fileInput = $('#file')[0];
-    if (!fileInput.files.length) {
-        Swal.fire({
-            icon: 'error',
-            title: 'No file selected',
-            text: 'Please choose a file to upload.'
-        });
-        return;
-    }
+        var fileInput = $('#file')[0];
+        if (!fileInput.files.length) {
+            Swal.fire({
+                icon: 'error',
+                title: 'No file selected',
+                text: 'Please choose a file to upload.'
+            });
+            return;
+        }
 
-    var formData = new FormData($('#uploadForm')[0]);
+        var formData = new FormData($('#uploadForm')[0]);
 
-    $.ajax({
-        url: 'picupload.php',
-        type: 'POST',
-        data: formData,
-        contentType: false,
-        processData: false,
-        success: function (response) {
-            try {
-                var data = JSON.parse(response);
-                if (data.status === 'success') {
-                    $('#profile-picture').attr('src', 'img/UserProfile/' + data.filename);
-                    $('#uploadModal').modal('hide');
+        $.ajax({
+            url: 'picupload.php',
+            type: 'POST',
+            data: formData,
+            contentType: false,
+            processData: false,
+            success: function (response) {
+                try {
+                    var data = JSON.parse(response);
+                    if (data.status === 'success') {
+                        $('#profile-picture').attr('src', 'img/UserProfile/' + data.filename);
+                        $('#uploadModal').modal('hide');
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Success',
+                            text: 'Profile picture updated successfully.'
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: data.message
+                        });
+                    }
+                } catch (e) {
                     Swal.fire({
-                        icon: 'success',
-                        title: 'Success',
-                        text: 'Profile picture updated successfully.'
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Invalid response from server.'
+                    });
+                }
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Upload failed',
+                    text: textStatus
+                });
+            }
+        });
+    });
+
+    // Change Password Button Click Event
+    $('#changePasswordBtn').click(function (e) {
+        e.preventDefault();
+        var email = $('#email').val();
+        var userId = $('#userId').val(); // Assuming you have a hidden input for userId
+
+        $.ajax({
+            url: 'changepassword.php',
+            type: 'POST',
+            data: { email: email, userId: userId },
+            success: function (response) {
+                if (response.status === 'success') {
+                    Swal.fire({
+                        title: 'OTP Sent',
+                        text: response.message,
+                        icon: 'success'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            window.location.href = 'verify_otp2.php?email=' + response.email + '&userId=' + userId;
+                        }
                     });
                 } else {
                     Swal.fire({
                         icon: 'error',
                         title: 'Error',
-                        text: data.message
+                        text: response.message
                     });
                 }
-            } catch (e) {
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
                 Swal.fire({
                     icon: 'error',
-                    title: 'Error',
-                    text: 'Invalid response from server.'
+                    title: 'Request failed',
+                    text: textStatus
                 });
             }
-        },
-        error: function (jqXHR, textStatus, errorThrown) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Upload failed',
-                text: textStatus
-            });
-        }
+        });
     });
 });
+</script>
 
-
-    $('#changePasswordBtn').click(function (e) {
-    e.preventDefault();
-    var email = $('#email').val();
-    var userId = $('#userId').val(); // Assuming you have a hidden input for userId
-
-    $.ajax({
-        url: 'changepassword.php',
-        type: 'POST',
-        data: { email: email, userId: userId },
-        success: function (response) {
-            if (response.status === 'success') {
-                Swal.fire({
-                    title: 'OTP Sent',
-                    text: response.message,
-                    icon: 'success'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        window.location.href = 'verify_otp2.php?email=' + response.email + '&userId=' + userId;
-                    }
-                });
-            } else {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: response.message
-                });
-            }
-        },
-        error: function (jqXHR, textStatus, errorThrown) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Request failed',
-                text: textStatus
-            });
-        }
-    });
-});
-
-});
-
-
-    </script>
 </body>
 
 </html>
