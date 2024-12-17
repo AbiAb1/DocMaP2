@@ -56,16 +56,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $mail = new PHPMailer(true);
 
         try {
-            //Server settings
+            // Server settings
             $mail->isSMTP();
             $mail->Host = 'smtp.gmail.com';
             $mail->SMTPAuth = true;
             $mail->Username = 'proftal2024@gmail.com';
-            $mail->Password = 'ytkj saab gnkb cxwa'; // Use your app password
+            $mail->Password = 'ytkj saab gnkb cxwa'; // Replace with your app password
             $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
             $mail->Port = 587;
 
-            //Recipients
+            // Recipients
             $mail->setFrom('proftal2024@gmail.com', 'ProfTal');
             $mail->addAddress($email);
 
@@ -87,5 +87,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Close the statement and connection
     $stmt->close();
     $conn->close();
+} else {
+    echo json_encode(['status' => 'error', 'message' => 'Invalid request method.']);
 }
 ?>
