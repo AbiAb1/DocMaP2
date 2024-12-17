@@ -657,18 +657,29 @@ document.addEventListener('DOMContentLoaded', (event) => {
 </script>
 
     <script>
-$(document).ready(function () {
-    $('#uploadBtn').click(function (e) {
-        e.preventDefault();
-        var formData = new FormData($('#uploadForm')[0]);
+$('#uploadBtn').click(function (e) {
+    e.preventDefault();
 
-        $.ajax({
-            url: 'picupload.php',
-            type: 'POST',
-            data: formData,
-            contentType: false,
-            processData: false,
-            success: function (response) {
+    var fileInput = $('#file')[0];
+    if (!fileInput.files.length) {
+        Swal.fire({
+            icon: 'error',
+            title: 'No file selected',
+            text: 'Please choose a file to upload.'
+        });
+        return;
+    }
+
+    var formData = new FormData($('#uploadForm')[0]);
+
+    $.ajax({
+        url: 'picupload.php',
+        type: 'POST',
+        data: formData,
+        contentType: false,
+        processData: false,
+        success: function (response) {
+            try {
                 var data = JSON.parse(response);
                 if (data.status === 'success') {
                     $('#profile-picture').attr('src', 'img/UserProfile/' + data.filename);
@@ -685,16 +696,24 @@ $(document).ready(function () {
                         text: data.message
                     });
                 }
-            },
-            error: function (jqXHR, textStatus, errorThrown) {
+            } catch (e) {
                 Swal.fire({
                     icon: 'error',
-                    title: 'Upload failed',
-                    text: textStatus
+                    title: 'Error',
+                    text: 'Invalid response from server.'
                 });
             }
-        });
+        },
+        error: function (jqXHR, textStatus, errorThrown) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Upload failed',
+                text: textStatus
+            });
+        }
     });
+});
+
 
     $('#changePasswordBtn').click(function (e) {
     e.preventDefault();
