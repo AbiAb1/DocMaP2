@@ -45,7 +45,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $stmt->execute();
 
         // Remove OTP entries for the user
-        $sql = 'DELETE FROM OTP WHERE UserID = ?';
+        $sql = 'DELETE FROM otp WHERE UserID = ?';
         $stmt = $conn->prepare($sql);
         $stmt->bind_param('i', $userId);
         $stmt->execute();
