@@ -656,7 +656,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
 </script>
 
-  <script>
+<script>
 $(document).ready(function () {
     // Upload Button Click Event
     $('#uploadBtn').click(function (e) {
@@ -716,29 +716,16 @@ $(document).ready(function () {
         });
     });
 
-$(document).ready(function () {
     // Change Password Button Click Event
     $('#changePasswordBtn').click(function (e) {
         e.preventDefault();
-
         var email = $('#email').val();
         var userId = $('#userId').val(); // Assuming you have a hidden input for userId
-
-        // Validate email before making the AJAX call
-        if (!email) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: 'Please enter your email.'
-            });
-            return;
-        }
 
         $.ajax({
             url: 'changepassword.php',
             type: 'POST',
             data: { email: email, userId: userId },
-            dataType: 'json', // Ensures response is parsed as JSON
             success: function (response) {
                 if (response.status === 'success') {
                     Swal.fire({
@@ -747,7 +734,7 @@ $(document).ready(function () {
                         icon: 'success'
                     }).then((result) => {
                         if (result.isConfirmed) {
-                            window.location.href = `verify_otp2.php?email=${encodeURIComponent(response.email)}&userId=${userId}`;
+                            window.location.href = 'verify_otp2.php?email=' + response.email + '&userId=' + userId;
                         }
                     });
                 } else {
@@ -761,15 +748,15 @@ $(document).ready(function () {
             error: function (jqXHR, textStatus, errorThrown) {
                 Swal.fire({
                     icon: 'error',
-                    title: 'Request Failed',
-                    text: 'An error occurred. Please try again.'
+                    title: 'Request failed',
+                    text: textStatus
                 });
             }
         });
     });
 });
-
 </script>
+
 
 </body>
 
