@@ -217,7 +217,7 @@ $conn->close();
         <!-- MAIN -->
 <main>
     <h1 class="title">User Management</h1>
-    <button class="add-button" data-bs-toggle="modal" data-bs-target="#addDataModal">Add Data</button>
+    <button class="add-button" data-bs-toggle="modal" data-bs-target="#addDataModal"><i class="fa-solid fa-file-excel" style="color#ffff;"></i></button>
     <div class="header">
         <div class="tabs">
             <button class="tablink" onclick="openTab('pending')" id="defaultOpen">Pending</button>
