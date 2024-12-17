@@ -47,7 +47,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $createdAt = date("Y-m-d H:i:s");
 
         // Insert OTP into the database
-        $sql = 'INSERT INTO OTP (otp, created_at, UserID) VALUES (?, ?, ?)';
+        $sql = 'INSERT INTO otp (otp, created_at, UserID) VALUES (?, ?, ?)';
         $stmt = $conn->prepare($sql);
         $stmt->bind_param('ssi', $otp, $createdAt, $userId);
         if ($stmt->execute()) {
