@@ -221,7 +221,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $userId = $user['UserID'];
 
         // Check OTP in the database
-        $sql = 'SELECT otp, created_at FROM OTP WHERE UserID = ? ORDER BY otp_ID DESC LIMIT 1';
+        $sql = 'SELECT otp, created_at FROM otp WHERE UserID = ? ORDER BY otp_ID DESC LIMIT 1';
         $stmt = $conn->prepare($sql);
         $stmt->bind_param('i', $userId);
         $stmt->execute();
