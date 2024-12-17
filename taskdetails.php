@@ -643,81 +643,88 @@ mysqli_close($conn);
                 conversationMessages.innerText = data.error;
             } else if (data.messages) { // Check if data.messages exists
                 data.messages.forEach(message => {
-                    const messageElement = document.createElement('div');
-                    messageElement.classList.add('message');
+    const messageElement = document.createElement('div');
+    messageElement.classList.add('message');
 
-                    if (message.source === 'task_user') {
-                        const taskUserContainer = document.createElement('div');
-                        taskUserContainer.classList.add('task-user-message');
+    if (message.source === 'task_user') {
+        const taskUserContainer = document.createElement('div');
+        taskUserContainer.classList.add('task-user-message');
 
-                        if (message.Status === 'Approved') {
-                            taskUserContainer.style.backgroundColor = '#e0f7e0'; // Green tint
-                            taskUserContainer.style.borderColor = '#81c784'; // Lighter green border
-                        } else if (message.Status === 'Rejected') {
-                            taskUserContainer.style.backgroundColor = '#ffebee'; // Red tint
-                            taskUserContainer.style.borderColor = '#e57373'; // Lighter red border
-                        }
+        if (message.Status === 'Approved') {
+            taskUserContainer.style.backgroundColor = '#e0f7e0'; // Green tint
+            taskUserContainer.style.borderColor = '#81c784'; // Lighter green border
+        } else if (message.Status === 'Rejected') {
+            taskUserContainer.style.backgroundColor = '#ffebee'; // Red tint
+            taskUserContainer.style.borderColor = '#e57373'; // Lighter red border
+        }
 
-                        const userNameBadge = document.createElement('span');
-                        userNameBadge.classList.add('task-user-badge');
-                        userNameBadge.innerText = message.FullName;
+        const userNameBadge = document.createElement('span');
+        userNameBadge.classList.add('task-user-badge');
+        userNameBadge.innerText = message.FullName;
 
-                        const dotIcon = document.createElement('span');
-                        dotIcon.classList.add('dot-icon');
-                        dotIcon.innerHTML = '&bull;'; // Dot icon
+        const dotIcon = document.createElement('span');
+        dotIcon.classList.add('dot-icon');
+        dotIcon.innerHTML = '&bull;'; // Dot icon
 
-                        const dateText = document.createElement('span');
-                        dateText.classList.add('task-user-date');
-                        let date = '';
-                        if (message.Status === 'Approved' && message.ApproveDate) {
-                            date = new Date(message.ApproveDate).toLocaleString('en-GB', { 
-                                year: 'numeric', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' 
-                            });
-                            dateText.innerText = ` ${date}`;
-                        } else if (message.Status === 'Rejected' && message.RejectDate) {
-                            date = new Date(message.RejectDate).toLocaleString('en-GB', { 
-                                year: 'numeric', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' 
-                            });
-                            dateText.innerText = ` ${date}`;
-                        }
+        const dateText = document.createElement('span');
+        dateText.classList.add('task-user-date');
+        let date = '';
+        if (message.Status === 'Approved' && message.ApproveDate) {
+            date = new Date(message.ApproveDate).toLocaleString('en-GB', { 
+                year: 'numeric', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' 
+            });
+            dateText.innerText = ` ${date}`;
+        } else if (message.Status === 'Rejected' && message.RejectDate) {
+            date = new Date(message.RejectDate).toLocaleString('en-GB', { 
+                year: 'numeric', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' 
+            });
+            dateText.innerText = ` ${date}`;
+        }
 
-                        taskUserContainer.appendChild(userNameBadge);
-                        taskUserContainer.appendChild(dotIcon);
-                        taskUserContainer.appendChild(dateText);
+        taskUserContainer.appendChild(userNameBadge);
+        taskUserContainer.appendChild(dotIcon);
+        taskUserContainer.appendChild(dateText);
 
-                        const messageText = document.createElement('p');
-                        messageText.classList.add('task-user-text');
-                        messageText.innerText = message.Comment;
+        // Only add the message comment if it exists and is not empty
+        if (message.Comment && message.Comment.trim() !== '') {
+            const messageText = document.createElement('p');
+            messageText.classList.add('task-user-text');
+            messageText.innerText = message.Comment;
+            taskUserContainer.appendChild(messageText);
+        }
 
-                        taskUserContainer.appendChild(messageText);
-                        messageElement.appendChild(taskUserContainer);
-                    } else {
-                        const profilePic = document.createElement('img');
-                        profilePic.src = `img/UserProfile/${message.profile}`;
-                        profilePic.alt = `${message.FullName}'s profile picture`;
-                        profilePic.classList.add('profile-pic');
+        messageElement.appendChild(taskUserContainer);
+    } else {
+        const profilePic = document.createElement('img');
+        profilePic.src = `img/UserProfile/${message.profile}`;
+        profilePic.alt = `${message.FullName}'s profile picture`;
+        profilePic.classList.add('profile-pic');
 
-                        const userName = document.createElement('p');
-                        userName.classList.add('user-name');
-                        userName.innerText = message.FullName;
+        const userName = document.createElement('p');
+        userName.classList.add('user-name');
+        userName.innerText = message.FullName;
 
-                        const messageText = document.createElement('p');
-                        messageText.classList.add('message-text');
-                        messageText.innerText = message.Comment;
+        // Only add the message comment if it exists and is not empty
+        if (message.Comment && message.Comment.trim() !== '') {
+            const messageText = document.createElement('p');
+            messageText.classList.add('message-text');
+            messageText.innerText = message.Comment;
+            messageElement.appendChild(messageText);
+        }
 
-                        messageElement.appendChild(profilePic);
-                        messageElement.appendChild(userName);
-                        messageElement.appendChild(messageText);
-                    }
+        messageElement.appendChild(profilePic);
+        messageElement.appendChild(userName);
+    }
 
-                    if (message.IncomingID == <?php echo json_encode($_SESSION['user_id']); ?>) {
-                        messageElement.classList.add('incoming');
-                    } else {
-                        messageElement.classList.add('outgoing');
-                    }
+    if (message.IncomingID == <?php echo json_encode($_SESSION['user_id']); ?>) {
+        messageElement.classList.add('incoming');
+    } else {
+        messageElement.classList.add('outgoing');
+    }
 
-                    conversationMessages.appendChild(messageElement);
-                });
+    conversationMessages.appendChild(messageElement);
+});
+
             } else {
                 console.error('Error fetching conversation messages: "messages" array not found in response.');
                 document.getElementById('conversationMessages').innerText = 'Error fetching conversation messages.';
