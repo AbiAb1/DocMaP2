@@ -46,15 +46,17 @@ $stmt_task_user->bind_param("iii", $task_id, $content_id, $user_id);
 if ($stmt_task_user->execute()) {
     $result_task_user = $stmt_task_user->get_result();
     if ($row_task_user = $result_task_user->fetch_assoc()) {
-        $task_user_comment = [
-            'Comment' => htmlspecialchars($row_task_user['Comment'] ?? ''), // Handle null values
-            'Status' => htmlspecialchars($row_task_user['Status']),
-            'ApproveDate' => htmlspecialchars($row_task_user['ApproveDate'] ?? ''), // Handle null values
-            'RejectDate' => htmlspecialchars($row_task_user['RejectDate'] ?? ''), // Handle null values
-            'FullName' => 'Task Remarks',
-            'source' => 'task_user'
-        ];
-        $messages[] = $task_user_comment;
+        if (!empty($row_task_user['Comment'])) { // Only include if Comment is not empty
+            $task_user_comment = [
+                'Comment' => htmlspecialchars($row_task_user['Comment']),
+                'Status' => htmlspecialchars($row_task_user['Status']),
+                'ApproveDate' => htmlspecialchars($row_task_user['ApproveDate'] ?? ''),
+                'RejectDate' => htmlspecialchars($row_task_user['RejectDate'] ?? ''),
+                'FullName' => 'Task Remarks',
+                'source' => 'task_user'
+            ];
+            $messages[] = $task_user_comment;
+        }
     }
 } else {
     echo json_encode(['error' => 'Error preparing statement for task_user: ' . $conn->error]);
