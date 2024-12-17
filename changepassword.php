@@ -60,7 +60,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $mail->Host = 'smtp.gmail.com';
                 $mail->SMTPAuth = true;
                 $mail->Username = 'proftal2024@gmail.com';
-                $mail->Password = 'your-app-password'; // Replace with your app password
+                $mail->Password = 'ytkj saab gnkb cxwa'; // Replace with your app password
                 $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
                 $mail->Port = 587;
 
