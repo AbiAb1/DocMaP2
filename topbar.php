@@ -89,7 +89,7 @@
             $userId = $_SESSION['user_id'];
 
             // Query to fetch profile image filename and user name
-            $sql = "SELECT Profile, CONCAT(Fname, ' ', Lname) AS fullname FROM useracc WHERE UserID = ?";
+            $sql = "SELECT profile, CONCAT(fname, ' ', lname) AS fullname FROM useracc WHERE UserID = ?";
             $stmt = $conn->prepare($sql);
 
             if ($stmt) {
@@ -109,7 +109,7 @@
                 } else {
                     // Default image if profile image not found
                     echo "<span class='user-name'>{$fullName}</span>";
-                    echo "<img src='default_profile_image.jpg' alt='Profile Image' class='profile-image'>";
+                    echo "<img src='profile.jpg' alt='Profile Image' class='profile-image'>";
                 }
             } else {
                 echo "Error preparing statement: " . $conn->error;
