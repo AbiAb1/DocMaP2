@@ -182,22 +182,21 @@ foreach ($ContentIDs as $ContentID) {
                 $timestamp = date("Y-m-d H:i:s"); // Current timestamp
                 $docuStmt->bind_param("ssssssss", $UserID, $ContentID, $TaskID, $file['fileName'], $file['fileMimeType'], $file['fileSize'], $file['githubUrl'], $timestamp);
 
-
                 // Execute the statement for the attachment table
                 if (!$docuStmt->execute()) {
                     write_log("Error inserting into attachment: " . $docuStmt->error);
                 }
                 $docuStmt->close(); // Close statement after each ContentID
-            }
+            } // <-- Closing bracket for foreach
 
             if ($_POST['taskAction'] === 'Assign') { // Only proceed if taskAction is 'Assign'
                 // Fetch users associated with the ContentID from usercontent
                 $userContentQuery = $conn->prepare("
-                SELECT ua.UserID, uc.Status
-                FROM usercontent uc
-                JOIN useracc ua ON uc.UserID = ua.UserID
-                WHERE uc.ContentID = ?
-                AND uc.Status = 1
+                    SELECT ua.UserID, uc.Status
+                    FROM usercontent uc
+                    JOIN useracc ua ON uc.UserID = ua.UserID
+                    WHERE uc.ContentID = ?
+                    AND uc.Status = 1
                 ");
                 $userContentQuery->bind_param("i", $ContentID); // Assuming ContentID is an integer
                 $userContentQuery->execute();
