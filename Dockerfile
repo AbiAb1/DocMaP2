@@ -11,7 +11,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libfreetype6-dev \
     && docker-php-ext-configure gd --with-jpeg --with-freetype \
     && docker-php-ext-install gd pdo_mysql mbstring zip mysqli \
-    && apt-get clean && rm -rf /var/lib/apt/lists/*
+    && apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Enable mod_rewrite for Apache
 RUN a2enmod rewrite
@@ -19,17 +19,15 @@ RUN a2enmod rewrite
 # Set the working directory to Apache's default web directory
 WORKDIR /var/www/html
 
-# Copy all project files into the container’s /var/www/html directory
-COPY . /var/www/html/
+# Copy only composer.json and composer.lock for faster initial build
+COPY composer.json composer.lock ./
+RUN composer install --no-dev --optimize-autoloader --no-interaction --no-progress
+
+# Copy the rest of the application code
+COPY . .
 
 # Set proper permissions for the web directory
 RUN chown -R www-data:www-data /var/www/html && chmod -R 755 /var/www/html
-
-# Install Composer (dependency manager for PHP)
-COPY --from=composer:2.6 /usr/bin/composer /usr/bin/composer
-
-# Install PHP dependencies via Composer (if any)
-RUN composer install --no-dev --optimize-autoloader
 
 # Set the DirectoryIndex to login.php to handle mysql requests
 RUN echo 'DirectoryIndex login.php index.php index.html' >> /etc/apache2/apache2.conf
