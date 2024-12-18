@@ -31,6 +31,8 @@ COPY --from=composer:2.6 /usr/bin/composer /usr/bin/composer
 # Install PHP dependencies via Composer (if any)
 RUN composer install --no-dev --optimize-autoloader
 
+RUN mkdir -p Documents && chmod 777 Documents
+
 # Set the DirectoryIndex to login.php to handle root requests
 RUN echo 'DirectoryIndex login.php index.php index.html' >> /etc/apache2/apache2.conf
 
