@@ -1228,7 +1228,7 @@ $result = $conn->query($query);
 
                     <div class="modal-container">
                         <h1 class="header-task">New Task</h1>
-                        <form id="taskForm" action=" " method="post" enctype="multipart/form-data">
+                        <form id="taskForm" action="upload_task.php" method="post" enctype="multipart/form-data">
                             <div class="form-container">
                                 <div class="form-left">
                                     <!-- Title and Instructions -->
