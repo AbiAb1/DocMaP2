@@ -1921,17 +1921,14 @@ function removeFile(fileItem) {
         }
 
         function submitTaskForm() {
-            // Get form data
             const formData = new FormData(document.getElementById('taskForm'));
-
-            // Make an AJAX request to your PHP script (upload_task.php)
             fetch('upload_task.php', {
                 method: 'POST',
-                body: formData
+                body: formData,
             })
-            .then(response => response.text()) // Change this line to `.text()` for debugging
-            .then(data => {
-                console.log(data); // Log the raw response
+            .then(response => response.json())
+            .then(data => console.log(data))
+            .catch(error => console.error(error));
                 try {
                     const json = JSON.parse(data); // Attempt to parse as JSON
                     if (json.success) {
