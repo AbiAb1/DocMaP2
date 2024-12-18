@@ -11,7 +11,8 @@ if (!isset($_SESSION['user_id'])) {
 $user_id = $_SESSION['user_id'];
 
 // Ensure the upload directory exists in the correct location relative to the repository
-$upload_dir = __DIR__ . '/img/UserProfile/'; // Use __DIR__ for the directory path
+$upload_dir = $_SERVER['DOCUMENT_ROOT'] . '/img/UserProfile/';
+
 if (!is_dir($upload_dir)) {
     mkdir($upload_dir, 0755, true);
 }
