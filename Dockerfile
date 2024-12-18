@@ -20,7 +20,7 @@ RUN a2enmod rewrite
 WORKDIR /var/www/html
 
 # Copy all project files into the container’s /var/www/html directory
-COPY . .
+COPY . /var/www/html/
 
 # Set proper permissions for the web directory
 RUN chown -R www-data:www-data /var/www/html && chmod -R 755 /var/www/html
