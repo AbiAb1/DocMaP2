@@ -1,8 +1,8 @@
 <?php
 $servername = "doc-map2024_sean";
 $username = "mysql";
-$password = "";
-$dbname = "docmap2";
+$password = "qwerty";
+$dbname = "docmap1";
 // Create connection
 $conn = new mysqli($servername, $username, $password, $dbname);
 
