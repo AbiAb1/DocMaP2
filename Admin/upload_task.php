@@ -6,7 +6,6 @@ if (!isset($_SESSION['user_id'])) {
     exit();
 }
 
-include 'Dockerfile'
 include 'connection.php';
 
 
