@@ -10,10 +10,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $hashedPassword = md5($password);
 
     // Prepare the SQL query to fetch the user details
-    $stmt = $conn->prepare("SELECT UserID, Username, Password, Role, Status, dept_ID FROM useracc WHERE Username = ?");
+    $stmt = $conn->prepare("SELECT UserID, Username, Password, Role, Status FROM useracc WHERE Username = ?");
     $stmt->bind_param("s", $username);
     $stmt->execute();
-    $stmt->bind_result($userID, $db_username, $db_password, $role, $status, $deptID); // Add $deptID to bind result
+    $stmt->bind_result($userID, $db_username, $db_password, $role, $status); // Add $deptID to bind result
 
    
     if ($stmt->fetch()) {
@@ -24,10 +24,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $_SESSION['username'] = $db_username;
             $_SESSION['login_success'] = true; // Set session variable for successful login
 
-            // Store dept_ID in session if it exists (only for users who have a department)
-            if (!empty($deptID)) {
-                $_SESSION['dept_ID'] = $deptID; // Store dept_ID in session
-            }
+
 
             // Check the role and redirect accordingly
             if ($role === 'Teacher') {
