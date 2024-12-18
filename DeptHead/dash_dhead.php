@@ -1267,37 +1267,7 @@ function formatTime(time) {
     
 </script>
 
-    <script>
 
-        
-
-       
-
-        // Prepare data for the file type donut chart
-        var fileTypeData = {
-            series: <?php echo json_encode($counts); ?>,
-            chart: {
-                type: 'donut',
-                height: 350
-            },
-            labels: <?php echo json_encode($fileTypes); ?>,
-            legend: {
-                position: 'bottom'
-            },
-            dataLabels: {
-                enabled: true
-            },
-            plotOptions: {
-                pie: {
-                    donut: {
-                        size: '60%' // Adjust the size of the donut hole
-                    }
-                }
-            }
-        };
-        var fileTypeChart = new ApexCharts(document.querySelector("#fileTypeChart"), fileTypeData);
-        fileTypeChart.render();
-    </script>
      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
      
       <script>
