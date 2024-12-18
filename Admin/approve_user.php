@@ -1,9 +1,9 @@
 <?php
 include 'connection.php';
+
+require '../vendor/autoload.php';  // Path to Composer autoload file
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
-
-require 'vendor/autoload.php'; // Path to Composer autoload file
 
 header('Content-Type: application/json');
 
