@@ -1831,7 +1831,7 @@ function removeFile(fileItem) {
             taskForm.appendChild(scheduleTimeInput);
 
             // Submit the form after updating the data
-            submitTaskForm_Schedule();
+            _Schedule();
 
             // Close the schedule modal
             closeScheduleModal();
@@ -1930,22 +1930,14 @@ function removeFile(fileItem) {
                 body: formData
             })
             .then(response => {
-                console.log('Raw response:', response); // Log raw response
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
-                return response.text(); // Get response as text to inspect it
+                return response.json();
             })
-            .then(text => {
-                console.log('Raw response text:', text); // Log response text
-                let data;
-                try {
-                    data = JSON.parse(text); // Try parsing JSON
-                } catch (e) {
-                    throw new Error('Invalid JSON response: ' + text); // Log invalid JSON
-                }
+            .then(data => {
                 if (data.success) {
-                    // Success handling
+                    // Success alert with SweetAlert
                     Swal.fire({
                         icon: 'success',
                         title: 'Task Created',
@@ -1953,10 +1945,12 @@ function removeFile(fileItem) {
                         confirmButtonText: 'OK'
                     }).then((result) => {
                         if (result.isConfirmed) {
+                            // Reload the page to display the new task
                             location.reload();
                         }
                     });
                 } else {
+                    // Error alert with SweetAlert
                     Swal.fire({
                         icon: 'error',
                         title: 'Error',
@@ -1972,8 +1966,8 @@ function removeFile(fileItem) {
                     text: 'An error occurred while creating the task. Please try again.'
                 });
             });
-
         }
+
 
         function submitTaskForm_Schedule() {
             // Get form data
