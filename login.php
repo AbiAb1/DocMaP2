@@ -7,7 +7,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $password = htmlspecialchars($_POST['password']);
 
     // Hash the password using MD5
-    $hashedPassword = md5($password);
+    
 
     // Prepare the SQL query to fetch the user details
     $stmt = $conn->prepare("SELECT UserID, Username, Password, role, Status, dept_ID FROM useracc WHERE Username = ?");
@@ -18,7 +18,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
    
     if ($stmt->fetch()) {
         // Check if the entered password matches the database password (not hashed)
-        if ($hashedPassword === $db_password && $status === 'Approved') {
+        if ($password === $db_password && $status === 'Approved') {
             // Store the user ID and username in session variables
             $_SESSION['user_id'] = $userID;
             $_SESSION['username'] = $db_username;
