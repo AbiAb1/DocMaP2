@@ -379,7 +379,7 @@ $result = $conn->query($query);
             border: 1px solid #888;
             width: 70vw; /* 100% of viewport width */
             max-width: 1200px; /* Optional: maximum width */
-            height: 75vh; /* 70% of viewport height */
+            height: 55vh; /* 70% of viewport height */
             max-height: 800px; /* Optional: maximum height */
             border-radius: 10px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
@@ -1831,7 +1831,7 @@ function removeFile(fileItem) {
             taskForm.appendChild(scheduleTimeInput);
 
             // Submit the form after updating the data
-            _Schedule();
+            submitTaskForm_Schedule();
 
             // Close the schedule modal
             closeScheduleModal();
@@ -1920,12 +1920,11 @@ function removeFile(fileItem) {
             }
         }
 
-        // Unified function to handle task submission
-        function submitTaskForm(actionType) {
+        function submitTaskForm() {
             // Get form data
             const formData = new FormData(document.getElementById('taskForm'));
 
-            // Make an AJAX request to PHP script (upload_task.php)
+            // Make an AJAX request to your PHP script (upload_task.php)
             fetch('upload_task.php', {
                 method: 'POST',
                 body: formData
@@ -1938,21 +1937,11 @@ function removeFile(fileItem) {
             })
             .then(data => {
                 if (data.success) {
-                    // Set the success message dynamically based on action type
-                    let successMessage = '';
-                    if (actionType === 'Assign') {
-                        successMessage = 'Your task has been assigned successfully!';
-                    } else if (actionType === 'Draft') {
-                        successMessage = 'Your task has been drafted successfully!';
-                    } else if (actionType === 'Schedule') {
-                        successMessage = 'Your task has been scheduled successfully!';
-                    }
-
                     // Success alert with SweetAlert
                     Swal.fire({
                         icon: 'success',
-                        title: `Task ${actionType}`,
-                        text: successMessage,
+                        title: 'Task Created',
+                        text: 'Your task has been created successfully!',
                         confirmButtonText: 'OK'
                     }).then((result) => {
                         if (result.isConfirmed) {
@@ -1974,11 +1963,10 @@ function removeFile(fileItem) {
                 Swal.fire({
                     icon: 'error',
                     title: 'Error',
-                    text: 'An error occurred while processing the task. Please try again.'
+                    text: 'An error occurred while creating the task. Please try again.'
                 });
             });
         }
-
 
         function submitTaskForm_Schedule() {
             // Get form data
