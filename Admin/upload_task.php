@@ -30,19 +30,19 @@ if ($_POST['taskAction'] === 'Schedule') {
     $Status = $_POST['taskAction'] === 'Draft' ? 'Draft' : 'Assign';
 }
 
-
 // File upload handling with improved error handling
 $uploadOk = 1;
 $target_dir = realpath(__DIR__ . '/Attachments') . '/';
 $allFilesUploaded = true;
 
 if (!is_dir($target_dir)) {
-    mkdir($target_dir, 0777, true);
+    if (!mkdir($target_dir, 0777, true) && !is_dir($target_dir)) {
+        die(json_encode(["success" => false, "message" => "Failed to create directory for attachments."]));
+    }
 }
 
 $uploadedFiles = [];
 $uploadErrors = [];
-
 
 if (isset($_FILES['file']) && count($_FILES['file']['name']) > 0 && !empty($_FILES['file']['name'][0])) {
     $fileCount = count($_FILES['file']['name']);
@@ -50,9 +50,26 @@ if (isset($_FILES['file']) && count($_FILES['file']['name']) > 0 && !empty($_FIL
     for ($i = 0; $i < $fileCount; $i++) {
         $fileTmpName = $_FILES['file']['tmp_name'][$i];
         $fileOriginalName = basename($_FILES['file']['name'][$i]);
-        if (empty($fileTmpName) || $_FILES['file']['error'][$i] !== UPLOAD_ERR_OK) {
+        $error = $_FILES['file']['error'][$i];
+
+        // Handle file upload errors
+        if ($error !== UPLOAD_ERR_OK) {
+            switch ($error) {
+                case UPLOAD_ERR_INI_SIZE:
+                case UPLOAD_ERR_FORM_SIZE:
+                    $uploadErrors[] = "File {$fileOriginalName} exceeds the maximum allowed size.";
+                    break;
+                case UPLOAD_ERR_PARTIAL:
+                    $uploadErrors[] = "File {$fileOriginalName} was only partially uploaded.";
+                    break;
+                case UPLOAD_ERR_NO_FILE:
+                    $uploadErrors[] = "No file was uploaded for {$fileOriginalName}.";
+                    break;
+                default:
+                    $uploadErrors[] = "An unknown error occurred while uploading {$fileOriginalName}.";
+                    break;
+            }
             $allFilesUploaded = false;
-            $uploadErrors[] = "Error uploading file {$fileOriginalName}: " . $_FILES['file']['error'][$i];
             continue;
         }
 
@@ -63,7 +80,6 @@ if (isset($_FILES['file']) && count($_FILES['file']['name']) > 0 && !empty($_FIL
         $randomNumber = rand(100000, 999999);
         $fileName = $randomNumber . "_" . $fileOriginalName;
         $target_file = $target_dir . $fileName;
-
 
         if ($fileSize > 5000000) {
             $allFilesUploaded = false;
