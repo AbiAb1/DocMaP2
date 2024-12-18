@@ -124,9 +124,7 @@ if (isset($_FILES['file']) && count($_FILES['file']['name']) > 0 && !empty($_FIL
                         'fileSize' => $fileSize,
                         'githubUrl' => $githubDownloadUrl
                     ];
-                } else {
-                    write_log("Error uploading file to GitHub: " . $response);
-                }
+                } 
             }
         
             curl_close($ch);
@@ -137,12 +135,9 @@ if (isset($_FILES['file']) && count($_FILES['file']['name']) > 0 && !empty($_FIL
 
             }
         } else {
-            write_log("Error uploading file locally: $fileOriginalName");
             $allFilesUploaded = false;
         }        
     }
-} else {
-    write_log("No files uploaded or file input is empty.");
 }
 
 // Insert task into tasks table for each ContentID
@@ -164,10 +159,7 @@ foreach ($ContentIDs as $ContentID) {
                 $timestamp = date("Y-m-d H:i:s"); // Current timestamp
                 $docuStmt->bind_param("ssssssss", $UserID, $ContentID, $TaskID, $file['fileName'], $file['fileMimeType'], $file['fileSize'], $file['githubUrl'], $timestamp);
 
-                // Execute the statement for the attachment table
-                if (!$docuStmt->execute()) {
-                    write_log("Error inserting into attachment: " . $docuStmt->error);
-                }
+               
                 $docuStmt->close(); // Close statement after each ContentID
             }
 
@@ -192,25 +184,18 @@ foreach ($ContentIDs as $ContentID) {
                         $taskUserStmt = $conn->prepare($taskUserSql);
                         if ($taskUserStmt) {
                             $taskUserStmt->bind_param("sss", $ContentID, $TaskID, $userInContentId);
-                            if (!$taskUserStmt->execute()) {
-                                write_log("Error inserting into task_user: " . $taskUserStmt->error);
-                            }
+                            
                             $taskUserStmt->close();
-                        } else {
-                            write_log("Error preparing task_user statement: " . $conn->error);
-                        }
+                        } 
                     }
-                } else {
-                    write_log("Error fetching users for ContentID $ContentID: " . $conn->error);
-                }
+                } 
 
                 // Fetch user name for notifications
                 $userQuery = $conn->prepare("SELECT CONCAT(fname, ' ', lname) AS fullName FROM useracc WHERE UserID = ?");
                 $userQuery->bind_param("s", $UserID);
                 $userQuery->execute();
                 $userName = $userQuery->get_result()->fetch_assoc()['fullName'];
-                write_log("Fetched user name: $userName for UserID: $UserID");
-
+                
 
                 // Fetch content title for notifications
                 $contentQuery = $conn->prepare("SELECT Title , Captions FROM feedcontent WHERE ContentID = ?");
@@ -225,10 +210,10 @@ foreach ($ContentIDs as $ContentID) {
                     
                     // Concatenate Title and Captions
                     $fullContent = $contentTitle . ' - ' . $contentCaptions; // Adjust the separator as needed
-                    write_log("Fetched content: $fullContent for ContentID: $ContentID");
+                    
                 } else {
                     $fullContent = "Unknown Content"; // Default value if no content found
-                    write_log("No content found for ContentID: $ContentID");
+                    
                 }
 
                 // Create notification
@@ -241,8 +226,7 @@ foreach ($ContentIDs as $ContentID) {
 
                 if ($notifStmt->execute()) {
                     $notifID = $notifStmt->insert_id;  // Get the inserted NotifID
-                    write_log("Notification added for TaskID $TaskID, Title: $notificationTitle");
-
+                    
                     // Insert into notif_user table for each user associated with this ContentID
                     $userContentQuery = $conn->prepare("SELECT ua.UserID FROM usercontent uc JOIN useracc ua ON uc.UserID = ua.UserID WHERE uc.ContentID = ?");
                     $userContentQuery->bind_param("i", $ContentID);
@@ -259,17 +243,11 @@ foreach ($ContentIDs as $ContentID) {
                             $status = 1;  // Status is 1 for all users
                             $notifUserStmt->bind_param("iiss", $notifID, $userInContentId, $status, $timestamp);
 
-                            if ($notifUserStmt->execute()) {
-                                write_log("Notification user inserted: NotifID $notifID, UserID $userInContentId");
-                            } else {
-                                write_log("Error inserting into notif_user: " . $notifUserStmt->error);
-                            }
+                           
 
                             $notifUserStmt->close(); // Close after each insertion
                         }
-                    } else {
-                        write_log("Error fetching users for ContentID $ContentID: " . $conn->error);
-                    }
+                    } 
                     // Fetch mobile numbers for bulk SMS
                     $mobileQuery = $conn->prepare("
                     SELECT ua.mobile, UPPER(CONCAT(ua.fname, ' ', ua.lname)) AS FullName 
@@ -294,9 +272,6 @@ foreach ($ContentIDs as $ContentID) {
                     // Create comma-separated list of mobile numbers
                     $mobileNumbersList = implode(",", $mobileNumbers);
                 
-                    // Log the message and mobile numbers
-                    write_log("Mobile numbers for ContentID $ContentID: $mobileNumbersList");
-                    write_log("Messages to be sent: " . implode(" | ", $messages));
                 
                     // Send SMS using Semaphore API (example)
                     $api_url = "https://api.semaphore.co/api/v4/messages"; // Semaphore API URL
@@ -321,23 +296,15 @@ foreach ($ContentIDs as $ContentID) {
                 
                         // Execute cURL request
                         $response = curl_exec($ch);
-                        if (curl_errno($ch)) {
-                            write_log("Error sending SMS to number ($number): " . curl_error($ch));
-                        } else {
-                            write_log("SMS sent successfully to number: $number");
-                        }
+                        
                         curl_close($ch);
                     }
-                } else {
-                    write_log("No mobile numbers found for ContentID $ContentID");
-                }
+                } 
                 
 
                     // Close user query
                     $userContentQuery->close();
-                } else {
-                    write_log("Error inserting into notifications: " . $notifStmt->error);
-                }
+                } 
 
                 $notifStmt->close(); // Close notification statement
 
@@ -346,12 +313,8 @@ foreach ($ContentIDs as $ContentID) {
             } // End of if $_POST['taskAction'] === 'Assign'
 
             $stmt->close(); // Close statement after each iteration
-        } else {
-            write_log("Error inserting into tasks: " . $stmt->error);
-        }
-    } else {
-        write_log("Error preparing tasks statement: " . $conn->error);
-    }
+        } 
+    } 
 }
 
 // Set response
@@ -363,5 +326,4 @@ if (!$allFilesUploaded) {
 echo json_encode($response);
 
 $conn->close();
-write_log("Database connection closed.");
 ?>
