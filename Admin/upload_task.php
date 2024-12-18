@@ -188,11 +188,17 @@ foreach ($ContentIDs as $ContentID) {
                         $taskUserStmt = $conn->prepare($taskUserSql);
                         if ($taskUserStmt) {
                             $taskUserStmt->bind_param("sss", $ContentID, $TaskID, $userInContentId);
-                            
+                            if (!$taskUserStmt->execute()) {
+                                error_log("Error inserting into task_user: " . $taskUserStmt->error);
+                            }
                             $taskUserStmt->close();
-                        } 
+                        } else {
+                            error_log("Error preparing task_user statement: " . $conn->error);
+                        }
                     }
-                } 
+                } else {
+                    error_log("Error fetching users for ContentID $ContentID: " . $conn->error);
+                }
 
                 // Fetch user name for notifications
                 $userQuery = $conn->prepare("SELECT CONCAT(fname, ' ', lname) AS fullName FROM useracc WHERE UserID = ?");
@@ -247,11 +253,17 @@ foreach ($ContentIDs as $ContentID) {
                             $status = 1;  // Status is 1 for all users
                             $notifUserStmt->bind_param("iiss", $notifID, $userInContentId, $status, $timestamp);
 
-                           
+                           if ($notifUserStmt->execute()) {
+                                error_log("Notification user inserted: NotifID $notifID, UserID $userInContentId");
+                            } else {
+                                error_log("Error inserting into notif_user: " . $notifUserStmt->error);
+                            }
 
                             $notifUserStmt->close(); // Close after each insertion
                         }
-                    } 
+                    } else {
+                        error_log("Error fetching users for ContentID $ContentID: " . $conn->error);
+                    }
                     // Fetch mobile numbers for bulk SMS
                     $mobileQuery = $conn->prepare("
                     SELECT ua.mobile, UPPER(CONCAT(ua.fname, ' ', ua.lname)) AS FullName 
@@ -300,15 +312,24 @@ foreach ($ContentIDs as $ContentID) {
                 
                         // Execute cURL request
                         $response = curl_exec($ch);
-                        
+                        if (curl_errno($ch)) {
+                            error_log("Error sending SMS to number ($number): " . curl_error($ch));
+                        } else {
+                            error_log("SMS sent successfully to number: $number");
+                        }
                         curl_close($ch);
                     }
-                } 
+                } else {
+                    error_log("No mobile numbers found for ContentID $ContentID");
+                }
                 
 
                     // Close user query
                     $userContentQuery->close();
-                } 
+                } else {
+                    write_log("Error inserting into notifications: " . $notifStmt->error);
+                }
+
 
                 $notifStmt->close(); // Close notification statement
 
