@@ -1,10 +1,7 @@
 <?php
 // fetch_data.php
 
-$servername = "localhost";
-$username = "root";
-$password = "";
-$dbname = "proftal4";
+include 'connection.php';
 
 $conn = new mysqli($servername, $username, $password, $dbname);
 

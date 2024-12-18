@@ -6,7 +6,9 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 $loginSuccess = isset($_SESSION['login_success']) ? $_SESSION['login_success'] : false;
-
+if ($loginSuccess) {
+    unset($_SESSION['login_success']); // Unset the session variable after use
+}
 
 include 'connection.php';
 $dept_ID = $_SESSION['dept_ID']; // Get dept_ID from session
