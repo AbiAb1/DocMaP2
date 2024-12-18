@@ -92,18 +92,56 @@ if (isset($_FILES['file']) && count($_FILES['file']['name']) > 0 && !empty($_FIL
             }
         
             
+            // Prepare GitHub API payload
             $content = base64_encode(file_get_contents($target_file));
             $data = json_encode([
                 "message" => "Adding a new file to upload folder",
                 "content" => $content,
                 "branch" => $branch
             ]);
-        
+            
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                error_log("JSON Encoding Error: " . json_last_error_msg()); // Log the JSON error
+                error_log("Payload Data: " . print_r($data, true)); // Log the raw payload
+            }
+            
             $headers = [
                 "Authorization: token $githubToken",
                 "Content-Type: application/json",
                 "User-Agent: DocMaP"
             ];
+            
+            // Log the payload
+            file_put_contents('github_payload.log', $data);
+            
+            // GitHub API Call
+            $ch = curl_init($uploadUrl);
+            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "PUT");
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            
+            $response = curl_exec($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            
+            // Log the response
+            file_put_contents('github_response.log', $response);
+            
+            if ($response === false) {
+                error_log("cURL Error: " . curl_error($ch)); // Log cURL errors
+            } else {
+                $responseData = json_decode($response, true);
+                if (json_last_error() !== JSON_ERROR_NONE) {
+                    error_log("JSON Decoding Error: " . json_last_error_msg());
+                    error_log("Raw Response: " . $response);
+                }
+                if ($httpCode !== 201) {
+                    error_log("GitHub API Error: HTTP Code $httpCode, Response: $response");
+                }
+            }
+            
+            curl_close($ch);
+
         
             // GitHub API Call
             $ch = curl_init($uploadUrl);
