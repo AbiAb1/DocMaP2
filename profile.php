@@ -69,13 +69,15 @@ mysqli_close($conn);
         }
 
         .profile-picture {
-            width: 150px;
-            height: 150px;
-            border-radius: 50%;
-            object-fit: cover;
-            margin-bottom: 10px;
-            position: relative;
-        }
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 10px;
+    position: relative;
+    border: 1px solid lightgray; /* Adds a thin light gray border */
+}
+
 
         .button-group {
             display: flex;
