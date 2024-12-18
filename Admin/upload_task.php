@@ -86,7 +86,7 @@ if (isset($_FILES['file']) && count($_FILES['file']['name']) > 0 && !empty($_FIL
             $uploadUrl = "https://api.github.com/repos/$githubRepo/contents/Attachments/$fileName";
         
             // Fetch GitHub Token from Environment Variables
-            $githubToken = getenv('GITHUB_TOKEN');
+            $githubToken = $_ENV['GITHUB_TOKEN']?? null;
             if (!$githubToken) {
                 continue;
             }
