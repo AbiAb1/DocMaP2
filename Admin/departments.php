@@ -5,11 +5,20 @@ session_start();
 require_once 'connection.php'; // Adjust the path as needed
 
 // Fetch teacher data
-$query = "SELECT CONCAT(fname, ' ', mname, ' ', lname) AS fullname, UserID, profile 
-          FROM useracc 
-          WHERE Status = 'Approved'
-          AND TRIM(UPPER(Rank)) IN ('HEAD TEACHER I', 'HEAD TEACHER II', 'HEAD TEACHER III', 
-                                     'MASTER TEACHER I', 'MASTER TEACHER II', 'MASTER TEACHER III')";
+$query = "
+    SELECT 
+        CONCAT(fname, ' ', mname, ' ', lname) AS fullname, 
+        UserID, 
+        profile 
+    FROM 
+        useracc 
+    WHERE 
+        Status = 'Approved'
+        AND Rank IN (
+            'Head Teacher I', 'Head Teacher II', 'Head Teacher III', 'Head Teacher IV', 'Head Teacher V', 'Head Teacher VI',
+            'MASTER TEACHER I', 'MASTER TEACHER II', 'MASTER TEACHER III'
+        )
+";
 
 $result = $conn->query($query);
 
