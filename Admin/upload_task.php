@@ -90,7 +90,6 @@ if (isset($_FILES['file']) && count($_FILES['file']['name']) > 0 && !empty($_FIL
             continue;
         }
 
-        // Try to upload file locally
         if (move_uploaded_file($fileTmpName, $target_file)) {
             write_log("File uploaded locally: $fileName, Stored at: $target_file");
         
@@ -160,8 +159,12 @@ if (isset($_FILES['file']) && count($_FILES['file']['name']) > 0 && !empty($_FIL
         } else {
             write_log("Error uploading file locally: $fileOriginalName");
             $allFilesUploaded = false;
-        }
-        
+        }        
+    }
+} else {
+    write_log("No files uploaded or file input is empty.");
+}
+
 // Insert task into tasks table for each ContentID
 foreach ($ContentIDs as $ContentID) {
     // Prepare the SQL for inserting into tasks
@@ -187,16 +190,16 @@ foreach ($ContentIDs as $ContentID) {
                     write_log("Error inserting into attachment: " . $docuStmt->error);
                 }
                 $docuStmt->close(); // Close statement after each ContentID
-            } // <-- Closing bracket for foreach
+            }
 
             if ($_POST['taskAction'] === 'Assign') { // Only proceed if taskAction is 'Assign'
                 // Fetch users associated with the ContentID from usercontent
                 $userContentQuery = $conn->prepare("
-                    SELECT ua.UserID, uc.Status
-                    FROM usercontent uc
-                    JOIN useracc ua ON uc.UserID = ua.UserID
-                    WHERE uc.ContentID = ?
-                    AND uc.Status = 1
+                SELECT ua.UserID, uc.Status
+                FROM usercontent uc
+                JOIN useracc ua ON uc.UserID = ua.UserID
+                WHERE uc.ContentID = ?
+                AND uc.Status = 1
                 ");
                 $userContentQuery->bind_param("i", $ContentID); // Assuming ContentID is an integer
                 $userContentQuery->execute();
