@@ -21,12 +21,12 @@ if (isset($_FILES['file']) && $_FILES['file']['error'] === UPLOAD_ERR_OK) {
     $allowed_ext = ['jpg', 'jpeg', 'png', 'gif'];
 
     if (!in_array($file_ext, $allowed_ext)) {
-        echo json_encode(['status' => 'error', 'message' => 'Invalid file type.']);
+        echo json_encode(['status' => 'error', 'message' => 'Invalid file type. Only JPG, JPEG, PNG, and GIF are allowed.']);
         exit;
     }
 
     $unique_filename = uniqid() . '.' . $file_ext;
-    $sanitized_filename = preg_replace('/[^a-zA-Z0-9._-]/', '', $unique_filename);
+    $sanitized_filename = preg_replace('/[^a-zA-Z0-9._-]/', '', $unique_filename); //Basic sanitization - improve as needed.
     $file_path = $upload_dir . $sanitized_filename;
 
     if (move_uploaded_file($file_tmp, $file_path)) {
@@ -34,9 +34,9 @@ if (isset($_FILES['file']) && $_FILES['file']['error'] === UPLOAD_ERR_OK) {
         $stmt->bind_param("si", $sanitized_filename, $user_id);
 
         if ($stmt->execute()) {
-            echo json_encode(['status' => 'success', 'message' => 'Profile updated successfully. Changes will be committed automatically.', 'filename' => $sanitized_filename]);
+            echo json_encode(['status' => 'success', 'message' => 'Profile picture updated successfully.  Awaiting GitHub Actions commit...', 'filename' => $sanitized_filename]);
         } else {
-            echo json_encode(['status' => 'error', 'message' => 'Database update failed']);
+            echo json_encode(['status' => 'error', 'message' => 'Database update failed: ' . $stmt->error]); //Added error reporting.
         }
         $stmt->close();
     } else {
