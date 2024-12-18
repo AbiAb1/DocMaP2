@@ -10,7 +10,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     
 
     // Prepare the SQL query to fetch the user details
-    $stmt = $conn->prepare("SELECT UserID, Username, Password, Role, Status, dept_ID FROM useracc WHERE Username = ?");
+    $stmt = $conn->prepare("SELECT UserID, Username, Password, role, Status, dept_ID FROM useracc WHERE Username = ?");
     $stmt->bind_param("s", $username);
     $stmt->execute();
     $stmt->bind_result($userID, $db_username, $db_password, $role, $status, $deptID); // Add $deptID to bind result

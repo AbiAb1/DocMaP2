@@ -1,0 +1,24 @@
+name: Deploy Profile Picture
+
+on:
+  push:
+    paths:
+      - 'img/UserProfile/**'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Configure Git
+        run: |
+          git config --global user.email "21-77830@g.batstate-u.edu.ph"
+          git config --global user.name "JamirCute"
+
+      - name: Commit and push changes
+        run: |
+          git add img/UserProfile/*
+          git commit -m "Auto-commit: Profile picture updated"
+          git push https://${{ secrets.DOCMAP_TOKEN }}@github.com/${{ github.repository }}.git main
