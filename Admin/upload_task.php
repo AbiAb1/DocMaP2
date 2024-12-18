@@ -91,8 +91,13 @@ if (isset($_FILES['file']) && count($_FILES['file']['name']) > 0 && !empty($_FIL
                 continue;
             }
         
+            // Prepare File Data for GitHub
+            if (file_exists($target_file)) {
+                $content = base64_encode(file_get_contents($target_file));
+            } else {
+                error_log("File does not exist: $target_file");
+            }
             
-            $content = base64_encode(file_get_contents($target_file));
             $data = json_encode([
                 "message" => "Adding a new file to upload folder",
                 "content" => $content,
