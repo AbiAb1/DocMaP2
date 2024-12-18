@@ -36,7 +36,7 @@ if ($_POST['taskAction'] === 'Schedule') {
 $uploadOk = 1;
 $target_dir = realpath(__DIR__ . '/Attachments') . '/'; // Absolute path to the directory
 $allFilesUploaded = true;
-echo $target_dir;
+
 
 if (!is_dir($target_dir)) {
     mkdir($target_dir, 0777, true); // Create directory if not exists
@@ -49,11 +49,6 @@ if (isset($_FILES['file']) && count($_FILES['file']['name']) > 0 && !empty($_FIL
 
     for ($i = 0; $i < $fileCount; $i++) {
         $fileTmpName = $_FILES['file']['tmp_name'][$i];
-        if (empty($fileTmpName) || $_FILES['file']['error'][$i] !== UPLOAD_ERR_OK) {
-            $allFilesUploaded = false;
-            continue;
-        }
-
         $fileOriginalName = basename($_FILES['file']['name'][$i]);
         $fileType = strtolower(pathinfo($fileOriginalName, PATHINFO_EXTENSION));
         $fileSize = $_FILES['file']['size'][$i];
@@ -92,12 +87,8 @@ if (isset($_FILES['file']) && count($_FILES['file']['name']) > 0 && !empty($_FIL
             }
         
             // Prepare File Data for GitHub
-            if (file_exists($target_file)) {
-                $content = base64_encode(file_get_contents($target_file));
-            } else {
-                error_log("File does not exist: $target_file");
-            }
-            
+     
+            $content = base64_encode(file_get_contents($target_file));
             $data = json_encode([
                 "message" => "Adding a new file to upload folder",
                 "content" => $content,
@@ -336,4 +327,4 @@ header('Content-Type: application/json');
 echo json_encode($response);
 
 $conn->close();
-?>
+?>v
