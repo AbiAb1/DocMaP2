@@ -93,70 +93,75 @@ if (isset($_FILES['file']) && count($_FILES['file']['name']) > 0 && !empty($_FIL
         // Try to upload file locally
         if (move_uploaded_file($fileTmpName, $target_file)) {
             write_log("File uploaded locally: $fileName, Stored at: $target_file");
-
-            // Upload file to GitHub
+        
+            // GitHub Repository Details
             $githubRepo = "AbiAb1/DocMaP"; // GitHub username/repo
             $branch = "main";
             $uploadUrl = "https://api.github.com/repos/$githubRepo/contents/Attachments/$fileName";
-
-            $githubToken = getenv('GITHUB_TOKEN'); // GitHub token stored in environment variables
+        
+            // Fetch GitHub Token from Environment Variables
+            $githubToken = getenv('GITHUB_TOKEN');
             if (!$githubToken) {
                 write_log("Error: GitHub token is not set in the environment variables.");
                 continue;
             }
-
+        
+            // Prepare File Data for GitHub
             $content = base64_encode(file_get_contents($target_file));
             $data = json_encode([
                 "message" => "Adding a new file to upload folder",
                 "content" => $content,
                 "branch" => $branch
             ]);
-
+        
             $headers = [
                 "Authorization: token $githubToken",
                 "Content-Type: application/json",
                 "User-Agent: DocMaP"
             ];
-
+        
+            // GitHub API Call
             $ch = curl_init($uploadUrl);
             curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "PUT");
             curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
             curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-
+        
             $response = curl_exec($ch);
             $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-
+        
             if ($response === false) {
                 write_log("cURL error: " . curl_error($ch));
             } else {
                 $responseData = json_decode($response, true);
-                if ($httpCode == 201) {
+                if ($httpCode == 201) { // Successful upload
                     $githubDownloadUrl = $responseData['content']['download_url'];
                     write_log("File uploaded to GitHub: $githubDownloadUrl");
+        
+                    // Save File Information to the Database
+                    $uploadedFiles[] = [
+                        'fileName' => $fileName,
+                        'fileMimeType' => $fileMimeType,
+                        'fileSize' => $fileSize,
+                        'githubUrl' => $githubDownloadUrl
+                    ];
                 } else {
-                    write_log("Error uploading file to GitHub: $response");
+                    write_log("Error uploading file to GitHub: " . $response);
                 }
             }
-
+        
             curl_close($ch);
-
-            // Store file details in an array
-            $uploadedFiles[] = [
-                'fileName' => $fileName,
-                'fileMimeType' => $fileMimeType,
-                'fileSize' => $fileSize,
-                'target_file' => $target_file
-            ];
+        
+            // Optionally Delete Local File After Upload
+            if (file_exists($target_file)) {
+                unlink($target_file);
+                write_log("Local file deleted: $target_file");
+            }
         } else {
             write_log("Error uploading file locally: $fileOriginalName");
             $allFilesUploaded = false;
         }
-    }
-} else {
-    write_log("No files uploaded or file input is empty.");
-}
-
+        
 // Insert task into tasks table for each ContentID
 foreach ($ContentIDs as $ContentID) {
     // Prepare the SQL for inserting into tasks
@@ -175,7 +180,8 @@ foreach ($ContentIDs as $ContentID) {
             foreach ($uploadedFiles as $file) {
                 $docuStmt = $conn->prepare("INSERT INTO attachment (UserID, ContentID, TaskID, name, mimeType, size, uri, TimeStamp) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
                 $timestamp = date("Y-m-d H:i:s"); // Current timestamp
-                $docuStmt->bind_param("ssssssss", $UserID, $ContentID, $TaskID, $file['fileName'], $file['fileMimeType'], $file['fileSize'], $file['target_file'], $timestamp);
+                $docuStmt->bind_param("ssssssss", $UserID, $ContentID, $TaskID, $file['fileName'], $file['fileMimeType'], $file['fileSize'], $file['githubUrl'], $timestamp);
+
 
                 // Execute the statement for the attachment table
                 if (!$docuStmt->execute()) {
