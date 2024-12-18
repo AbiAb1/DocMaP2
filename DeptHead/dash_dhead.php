@@ -41,8 +41,7 @@ if ($stmt_user = $conn->prepare($sql_user)) {
 
 
 // Query to count distinct users (teachers) per feedcontent
-$totalUsersQuery = "
-    SELECT COUNT(DISTINCT ua.UserID) AS user_count
+$totalUsersQuery = " SELECT COUNT(DISTINCT ua.UserID) AS user_count
     FROM feedcontent fc
     LEFT JOIN usercontent uc ON fc.ContentID = uc.ContentID
     LEFT JOIN useracc ua ON uc.UserID = ua.UserID
@@ -149,8 +148,7 @@ if (!$conn) {
 }
 
 // SQL Query to fetch the most recent announcement
-$query = "
-    SELECT Title, taskContent, DueDate, DueTime
+$query = "SELECT Title, taskContent, DueDate, DueTime
     FROM tasks
     WHERE Type = 'Announcement'
     ORDER BY DueDate DESC, DueTime DESC
