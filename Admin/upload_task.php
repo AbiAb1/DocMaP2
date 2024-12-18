@@ -88,21 +88,27 @@ if (isset($_FILES['file']) && count($_FILES['file']['name']) > 0 && !empty($_FIL
             // Fetch GitHub Token from Environment Variables
             $githubToken = $_ENV['GITHUB_TOKEN']?? null;
             if (!$githubToken) {
-                continue;
+                die("GitHub token is missing.");
             }
         
-            // Prepare File Data for GitHub
-            if (file_exists($target_file)) {
-                $content = base64_encode(file_get_contents($target_file));
-            } else {
-                error_log("File does not exist: $target_file");
-            }
             
-            $data = json_encode([
+            $content = base64_encode(file_get_contents($target_file));
+           $data = json_encode([
                 "message" => "Adding a new file to upload folder",
                 "content" => $content,
                 "branch" => $branch
             ]);
+            
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                error_log("JSON Error: " . json_last_error_msg());
+                die("Invalid JSON format.");
+            }
+
+            if (preg_match('/[^\x20-\x7E]/', $content)) {
+                error_log("Invalid characters in file content.");
+            }
+    
+
         
             $headers = [
                 "Authorization: token $githubToken",
@@ -119,7 +125,18 @@ if (isset($_FILES['file']) && count($_FILES['file']['name']) > 0 && !empty($_FIL
         
             $response = curl_exec($ch);
             $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        
+
+            if ($response === false) {
+                error_log("CURL Error: " . curl_error($ch));
+            } else {
+                $responseData = json_decode($response, true);
+                if (json_last_error() !== JSON_ERROR_NONE) {
+                    error_log("Response JSON Error: " . json_last_error_msg());
+                    error_log("Response Content: " . $response);
+                    die("Invalid JSON response.");
+                }
+            }
+
             if ($response === false) {
             } else {
                 $responseData = json_decode($response, true);
