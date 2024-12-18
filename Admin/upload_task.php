@@ -129,11 +129,7 @@ if (isset($_FILES['file']) && count($_FILES['file']['name']) > 0 && !empty($_FIL
         
             curl_close($ch);
         
-            // Optionally Delete Local File After Upload
-            if (file_exists($target_file)) {
-                unlink($target_file);
-
-            }
+            
         } else {
             $allFilesUploaded = false;
         }        
