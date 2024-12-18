@@ -6,15 +6,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $username = htmlspecialchars($_POST['username']);
     $password = htmlspecialchars($_POST['password']);
 
+    // Hash the password using MD5
+    $hashedPassword = md5($password);
+
     // Prepare the SQL query to fetch the user details
     $stmt = $conn->prepare("SELECT UserID, Username, Password, Role, Status, dept_ID FROM useracc WHERE Username = ?");
     $stmt->bind_param("s", $username);
     $stmt->execute();
     $stmt->bind_result($userID, $db_username, $db_password, $role, $status, $deptID); // Add $deptID to bind result
 
+   
     if ($stmt->fetch()) {
         // Check if the entered password matches the database password (not hashed)
-        if ($password === $db_password && $status === 'Approved') {
+        if ($hashedPassword === $db_password && $status === 'Approved') {
             // Store the user ID and username in session variables
             $_SESSION['user_id'] = $userID;
             $_SESSION['username'] = $db_username;
