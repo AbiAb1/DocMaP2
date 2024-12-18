@@ -502,28 +502,38 @@ mysqli_close($conn);
         
         <h6 style ="margin-top:50px;">Attachments:</h6>
 
-     <?php if (!empty($documents)): ?>
-    <div class="Attachment-container row">
-        <?php foreach ($documents as $document): ?>
-            <?php
-            // Remove the leading numbers followed by an underscore
-            $displayName = preg_replace('/^\d+_/', '', $document['name']);
-            // Construct the raw GitHub URL
-            $githubUrl = "https://raw.githubusercontent.com/AbiAb1/DocMaP2/extra/Admin/Attachments/" . urlencode($document['name']);
-            ?>
-            <div class="col-md-3">
-                <a href="<?php echo $githubUrl; ?>" target="_blank" class="file">
-                    <span><?php echo htmlspecialchars($displayName); ?></span>
-                    <div class="pin-icon" style="background-color: <?php echo htmlspecialchars($task_color); ?>;">
-                        <i class="bx bx-paperclip"></i>
-                    </div>
-                </a>
-            </div>
-        <?php endforeach; ?>
-    </div>
-<?php else: ?>
-    <p>No attachments available.</p>
-<?php endif; ?>
+    <?php
+if (!empty($documents)) {
+    echo '<div class="Attachment-container row">';
+    foreach ($documents as $document) {
+        // Remove leading numbers and underscore
+        $displayName = preg_replace('/^\d+_/', '', $document['name']);
+        // Local file path (replace with your actual path if stored locally)
+        $filePath = "Admin/Attachments/" . $document['name'];
+
+        // Check if the file exists locally
+        if (file_exists($filePath)) {
+            $fileUrl = $filePath; // Serve from the local server
+        } else {
+            // GitHub raw URL fallback
+            $fileUrl = "https://raw.githubusercontent.com/AbiAb1/DocMaP2/extra/Admin/Attachments/" . urlencode($document['name']);
+        }
+
+        echo '<div class="col-md-3">';
+        echo '<a href="' . htmlspecialchars($fileUrl) . '" target="_blank" class="file">';
+        echo '<span>' . htmlspecialchars($displayName) . '</span>';
+        echo '<div class="pin-icon" style="background-color: ' . htmlspecialchars($task_color) . ';">';
+        echo '<i class="bx bx-paperclip"></i>';
+        echo '</div>';
+        echo '</a>';
+        echo '</div>';
+    }
+    echo '</div>';
+} else {
+    echo '<p>No attachments available.</p>';
+}
+?>
+
 
 
     </div>
