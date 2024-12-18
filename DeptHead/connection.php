@@ -1,5 +1,5 @@
 <?php
-$servername = "doc-map2024_sean";
+$servername = "doc-map2024_extradb";
 $username = "mysql";
 $password = "qwerty";
 $dbname = "docmap1";
