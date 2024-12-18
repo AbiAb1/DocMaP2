@@ -68,46 +68,93 @@ if (isset($_FILES['file']) && count($_FILES['file']['name']) > 0 && !empty($_FIL
         $fileSize = $_FILES['file']['size'][$i];
         $fileMimeType = mime_content_type($fileTmpName);
 
-        // Generate a 6-digit random number
-        $randomNumber = rand(100000, 999999);
-        $fileName = $randomNumber . "_" . $fileOriginalName; // Format: random_number_original_filename
-        $target_file = $target_dir . $fileName; // Full path to the target file
+        // Sanitize file name
+        $fileOriginalName = preg_replace('/[^a-zA-Z0-9_.]/', '', str_replace([' ', '-'], '_', $fileOriginalName));
 
-        write_log("Processing file $fileOriginalName: New Name = $fileName, Type = $fileType, Size = $fileSize, MimeType = $fileMimeType");
+        // Generate a random file name
+        $randomNumber = rand(100000, 999999);
+        $fileName = $randomNumber . "_" . $fileOriginalName;
+        $target_file = $target_dir . $fileName;
+
 
         // Check file size
         if ($fileSize > 5000000) { // Limit to 5MB
-            write_log("File too large: $fileOriginalName");
             $allFilesUploaded = false;
-            continue; // Skip to the next file
+            continue;
         }
 
         // Allow certain file formats
         $allowedTypes = array('jpg', 'jpeg', 'png', 'gif', 'pdf', 'doc', 'docx', 'xls', 'xlsx', 'pptx');
         if (!in_array($fileType, $allowedTypes)) {
-            write_log("Invalid file type: $fileOriginalName");
             $allFilesUploaded = false;
-            continue; // Skip to the next file
+            continue;
         }
 
-        // Try to upload file
         if (move_uploaded_file($fileTmpName, $target_file)) {
-            write_log("File uploaded: $fileName, Stored at: $target_file");
-
-            // Store file details in an array to insert after task creation
-            $uploadedFiles[] = [
-                'fileName' => $fileName,
-                'fileMimeType' => $fileMimeType,
-                'fileSize' => $fileSize,
-                'target_file' => $target_file
+        
+            // GitHub Repository Details
+            $githubRepo = "AbiAb1/DocMaP2"; // GitHub username/repo
+            $branch = "extra";
+            $uploadUrl = "https://api.github.com/repos/$githubRepo/contents/DeptHead/Attachments/$fileName";
+        
+            // Fetch GitHub Token from Environment Variables
+            $githubToken = $_ENV['GITHUB_TOKEN']?? null;
+            if (!$githubToken) {
+                continue;
+            }
+        
+            // Prepare File Data for GitHub
+     
+            $content = base64_encode(file_get_contents($target_file));
+            $data = json_encode([
+                "message" => "Adding a new file to upload folder",
+                "content" => $content,
+                "branch" => $branch
+            ]);
+        
+            $headers = [
+                "Authorization: token $githubToken",
+                "Content-Type: application/json",
+                "User-Agent: DocMaP"
             ];
+        
+            // GitHub API Call
+            $ch = curl_init($uploadUrl);
+            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "PUT");
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        
+            $response = curl_exec($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        
+            if ($response === false) {
+            } else {
+                $responseData = json_decode($response, true);
+                if ($httpCode == 201) { // Successful upload
+                    $githubDownloadUrl = $responseData['content']['download_url'];
+        
+                    // Save File Information to the Database
+                    $uploadedFiles[] = [
+                        'fileName' => $fileName,
+                        'fileMimeType' => $fileMimeType,
+                        'fileSize' => $fileSize,
+                        'githubUrl' => $githubDownloadUrl
+                    ];
+                } 
+            }
+        
+            curl_close($ch);
+        
+            // Optionally Delete Local File After Upload
+            if (file_exists($target_file)) {
+                unlink($target_file);
+
+            }
         } else {
-            write_log("Error uploading file: $fileOriginalName");
             $allFilesUploaded = false;
-        }
+        }        
     }
-} else {
-    write_log("No files uploaded or file input is empty.");
 }
 
 // Insert task into tasks table for each ContentID
