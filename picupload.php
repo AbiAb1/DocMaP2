@@ -1,6 +1,6 @@
 <?php
 session_start();
-require 'connection.php'; // Ensure this path is correct relative to the root of your GitHub repository
+require 'connection.php'; // Ensure this path is correct
 
 // Check if the user is logged in
 if (!isset($_SESSION['user_id'])) {
@@ -10,8 +10,9 @@ if (!isset($_SESSION['user_id'])) {
 
 $user_id = $_SESSION['user_id'];
 
-// Ensure the upload directory exists in the correct location relative to the repository
-$upload_dir = __DIR__ . '/img/UserProfile/'; // Use __DIR__ for the directory path
+// Ensure the upload directory exists
+$upload_dir = $_SERVER['DOCUMENT_ROOT'] . '/img/UserProfile/';
+
 if (!is_dir($upload_dir)) {
     mkdir($upload_dir, 0755, true);
 }
@@ -40,7 +41,35 @@ if (isset($_FILES['file']) && $_FILES['file']['error'] === UPLOAD_ERR_OK) {
         $stmt->bind_param("si", $unique_filename, $user_id);
 
         if ($stmt->execute()) {
-            echo json_encode(['status' => 'success', 'message' => 'Profile updated successfully', 'filename' => $unique_filename]);
+            // Git auto-commit process
+            $repo_dir = $_SERVER['DOCUMENT_ROOT']; // Root directory of your Git repository
+            $commit_message = "Auto-commit: Uploaded profile picture for user $user_id";
+
+            // Change directory to the repository
+            chdir($repo_dir);
+
+            // Stage the file for commit
+            exec("git add img/UserProfile/$unique_filename", $output, $return_var);
+            if ($return_var !== 0) {
+                echo json_encode(['status' => 'error', 'message' => 'Failed to stage file for Git commit']);
+                exit;
+            }
+
+            // Commit the file
+            exec("git commit -m \"$commit_message\"", $output, $return_var);
+            if ($return_var !== 0) {
+                echo json_encode(['status' => 'error', 'message' => 'Git commit failed']);
+                exit;
+            }
+
+            // Push the changes to GitHub
+            exec("git push origin main", $output, $return_var); // Replace 'main' with your branch name if different
+            if ($return_var !== 0) {
+                echo json_encode(['status' => 'error', 'message' => 'Failed to push changes to GitHub']);
+                exit;
+            }
+
+            echo json_encode(['status' => 'success', 'message' => 'Profile updated successfully and changes committed to GitHub', 'filename' => $unique_filename]);
         } else {
             echo json_encode(['status' => 'error', 'message' => 'Database update failed']);
         }
@@ -49,32 +78,7 @@ if (isset($_FILES['file']) && $_FILES['file']['error'] === UPLOAD_ERR_OK) {
         echo json_encode(['status' => 'error', 'message' => 'Failed to move uploaded file']);
     }
 } else {
-    // Handle file upload errors
-    $error_message = 'Unknown error';
-    if (isset($_FILES['file']['error'])) {
-        switch ($_FILES['file']['error']) {
-            case UPLOAD_ERR_INI_SIZE:
-            case UPLOAD_ERR_FORM_SIZE:
-                $error_message = 'File size exceeds the allowed limit.';
-                break;
-            case UPLOAD_ERR_PARTIAL:
-                $error_message = 'File was only partially uploaded.';
-                break;
-            case UPLOAD_ERR_NO_FILE:
-                $error_message = 'No file uploaded.';
-                break;
-            case UPLOAD_ERR_NO_TMP_DIR:
-                $error_message = 'Missing temporary folder.';
-                break;
-            case UPLOAD_ERR_CANT_WRITE:
-                $error_message = 'Failed to write file to disk.';
-                break;
-            case UPLOAD_ERR_EXTENSION:
-                $error_message = 'A PHP extension stopped the file upload.';
-                break;
-        }
-    }
-    echo json_encode(['status' => 'error', 'message' => $error_message]);
+    echo json_encode(['status' => 'error', 'message' => 'No valid file uploaded']);
 }
 
 $conn->close();
