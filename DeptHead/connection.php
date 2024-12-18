@@ -2,7 +2,7 @@
 $servername = "doc-map2024_docmap";
 $username = "mysql";
 $password = "9d9a12fd2fb2264975bf";
-$dbname = "docmap2";
+$dbname = "docmap1";
 
 // Create connection
 $conn = new mysqli($servername, $username, $password, $dbname);
