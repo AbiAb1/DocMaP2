@@ -17,7 +17,7 @@ $DueDate = $_POST['due-date'];
 $taskContent = $_POST['instructions'];
 $DueTime = $_POST['due-time'];
 $timeStamp = date('Y-m-d H:i:s');
-$ApprovalStatus = "Pending";
+$ApprovalStatus = "Approved";
 
 // Get schedule date and time from POST if the action is schedule
 if ($_POST['taskAction'] === 'Schedule') {
