@@ -1930,14 +1930,22 @@ function removeFile(fileItem) {
                 body: formData
             })
             .then(response => {
+                console.log('Raw response:', response); // Log raw response
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
-                return response.json();
+                return response.text(); // Get response as text to inspect it
             })
-            .then(data => {
+            .then(text => {
+                console.log('Raw response text:', text); // Log response text
+                let data;
+                try {
+                    data = JSON.parse(text); // Try parsing JSON
+                } catch (e) {
+                    throw new Error('Invalid JSON response: ' + text); // Log invalid JSON
+                }
                 if (data.success) {
-                    // Success alert with SweetAlert
+                    // Success handling
                     Swal.fire({
                         icon: 'success',
                         title: 'Task Created',
@@ -1945,12 +1953,10 @@ function removeFile(fileItem) {
                         confirmButtonText: 'OK'
                     }).then((result) => {
                         if (result.isConfirmed) {
-                            // Reload the page to display the new task
                             location.reload();
                         }
                     });
                 } else {
-                    // Error alert with SweetAlert
                     Swal.fire({
                         icon: 'error',
                         title: 'Error',
@@ -1966,6 +1972,7 @@ function removeFile(fileItem) {
                     text: 'An error occurred while creating the task. Please try again.'
                 });
             });
+
         }
 
         function submitTaskForm_Schedule() {
