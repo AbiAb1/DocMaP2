@@ -140,6 +140,7 @@ function updateTaskStatus($conn, $taskIDs, $status) {
             $taskTitle = $taskDetails['Title'];
             $DueDate = $taskDetails['DueDate'];
             $DueTime = $taskDetails['DueTime'];
+            $timestamp = date('Y-m-d H:i:s');
 
             // Fetch associated users
             $userContentQuery = $conn->prepare("SELECT ua.UserID FROM usercontent uc 
@@ -191,7 +192,7 @@ function updateTaskStatus($conn, $taskIDs, $status) {
                 
                     if ($approvalNotifStmt->execute()) {
                         $approvalNotifID = $approvalNotifStmt->insert_id;
-                
+                        
                         // Link the approval notification to the creator
                         $notifUserApprovalStmt = $conn->prepare("INSERT INTO notif_user (NotifID, UserID, Status, TimeStamp) VALUES (?, ?, ?, ?)");
                         $notifUserApprovalStmt->bind_param("iiss", $approvalNotifID, $creatorUserID, $status, $timestamp);
