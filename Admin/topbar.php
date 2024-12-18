@@ -3,66 +3,7 @@
     <form action="#">
         <!-- Your form content here if needed -->
     </form>
-    <a href="#" class="nav-link">
-        <?php
-        // Ensure session is started at the beginning of the script if not already started
-        if (session_status() == PHP_SESSION_NONE) {
-            session_start();
-        }
-
-        // Include database connection
-        include 'connection.php';
-
-        // Check if user is logged in
-        if (isset($_SESSION['user_id'])) {
-            $user_id = $_SESSION['user_id'];
-        ?>
-        <i class='bx bxs-bell icon' id="notification-icon"></i>
-        <div class="dropdown-menu" id="notifications-dropdown">
-            <h4 style="font-weight:bold;color:#9B2035">Notifications</h4>
-            <?php
-                // Query to fetch notifications
-                $sql = "SELECT ts.NotifID, ts.TaskID, ts.ContentID, ts.UserID, ts.Title, ts.Content, ts.Status, ts.TimeStamp, CONCAT(ua.fname, ' ', ua.lname) as fullname
-                        FROM notifications ts
-                        INNER JOIN usercontent uc ON ts.ContentID = uc.ContentID
-                        INNER JOIN useracc ua ON ts.UserID = ua.UserID
-                        WHERE uc.UserID = ? 
-                        ORDER BY ts.TimeStamp DESC";
-                $stmt = $conn->prepare($sql);
-                $stmt->bind_param("s", $user_id);
-                $stmt->execute();
-                $stmt->bind_result($id, $taskID, $contentID, $notifUserID, $title, $content, $status, $timestamp, $fullname);
-
-                echo "<ul class='notifications-list'>";
-
-                while ($stmt->fetch()) {
-                    $title_color = $status == 1 ? 'red' : 'gray';
-                    $notif_status_class = $status == 1 ? 'new-notification' : '';
-                    echo "<li class='notification-item {$notif_status_class}'>";
-                    //echo "<a href='tasks.php?content_id={$contentID}' style='text-decoration: none; color: inherit;'>"; 
-                    echo "<div class='notif-header'><strong>{$fullname}</strong></div>";
-                    echo "<div class='notif-title' style='font-weight:bold;'>{$title}</div>";
-                    echo "<div class='notif-content'>{$content}</div>";
-                    echo "<div class='notif-timestamp'>{$timestamp}</div>";
-                    echo "</li>";
-                }
-                echo "</ul>";
-
-                $stmt->close(); // Close statement after fetching results
-            } else {
-                echo "User not logged in.";
-            }
-
-            // Close database connection at the end of the script
-            $conn->close();
-            ?>
-        </div>
-    </a>
-    <a href="#" class="nav-link">
-        <i class='bx bxs-notepad icon'></i>
-        <!-- Notepad icon content -->
-    </a>
-    <span class="divider"></span>
+    
     <div class="profile">
         <?php
         // Ensure session is started at the beginning of the script if not already started
