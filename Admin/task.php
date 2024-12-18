@@ -1920,41 +1920,41 @@ function removeFile(fileItem) {
             }
         }
 
-        function submitTaskForm() {
+         function submitTaskForm() {
+            // Get form data
             const formData = new FormData(document.getElementById('taskForm'));
+
+            // Make an AJAX request to your PHP script (upload_task.php)
             fetch('upload_task.php', {
                 method: 'POST',
-                body: formData,
+                body: formData
             })
-            .then(response => response.json())
-            .then(data => console.log(data))
-            .catch(error => console.error(error));
-                try {
-                    const json = JSON.parse(data); // Attempt to parse as JSON
-                    if (json.success) {
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Task Created',
-                            text: 'Your task has been created successfully!',
-                            confirmButtonText: 'OK'
-                        }).then((result) => {
-                            if (result.isConfirmed) {
-                                location.reload();
-                            }
-                        });
-                    } else {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error',
-                            text: json.message
-                        });
-                    }
-                } catch (error) {
-                    console.error('JSON Parsing Error:', error, 'Response:', data);
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    // Success alert with SweetAlert
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Task Created',
+                        text: 'Your task has been created successfully!',
+                        confirmButtonText: 'OK'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            // Reload the page to display the new task
+                            location.reload();
+                        }
+                    });
+                } else {
+                    // Error alert with SweetAlert
                     Swal.fire({
                         icon: 'error',
                         title: 'Error',
-                        text: 'Invalid server response. Please contact support.'
+                        text: data.message
                     });
                 }
             })
