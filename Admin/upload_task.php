@@ -322,11 +322,12 @@ foreach ($ContentIDs as $ContentID) {
 }
 
 // Set response
-header('Content-Type: application/json');
+
 $response = array("success" => true, "message" => "Tasks created successfully.");
 if (!$allFilesUploaded) {
     $response = array("success" => false, "message" => "Tasks created, but some files may not have been uploaded.");
 }
+header('Content-Type: application/json');
 echo json_encode($response);
 
 $conn->close();
