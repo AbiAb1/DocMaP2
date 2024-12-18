@@ -49,6 +49,11 @@ if (isset($_FILES['file']) && count($_FILES['file']['name']) > 0 && !empty($_FIL
 
     for ($i = 0; $i < $fileCount; $i++) {
         $fileTmpName = $_FILES['file']['tmp_name'][$i];
+        if (empty($fileTmpName) || $_FILES['file']['error'][$i] !== UPLOAD_ERR_OK) {
+            $allFilesUploaded = false;
+            continue;
+        }
+
         $fileOriginalName = basename($_FILES['file']['name'][$i]);
         $fileType = strtolower(pathinfo($fileOriginalName, PATHINFO_EXTENSION));
         $fileSize = $_FILES['file']['size'][$i];
@@ -62,7 +67,6 @@ if (isset($_FILES['file']) && count($_FILES['file']['name']) > 0 && !empty($_FIL
 
         // Check file size
         if ($fileSize > 5000000) { // Limit to 5MB
-            write_log("File too large: $fileOriginalName");
             $allFilesUploaded = false;
             continue;
         }
