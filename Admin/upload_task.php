@@ -54,6 +54,9 @@ if (isset($_FILES['file']) && count($_FILES['file']['name']) > 0 && !empty($_FIL
         $fileSize = $_FILES['file']['size'][$i];
         $fileMimeType = mime_content_type($fileTmpName);
 
+        // Sanitize file name
+        $fileOriginalName = preg_replace('/[^a-zA-Z0-9_.]/', '', str_replace([' ', '-'], '_', $fileOriginalName));
+
         // Generate a random file name
         $randomNumber = rand(100000, 999999);
         $fileName = $randomNumber . "_" . $fileOriginalName;
