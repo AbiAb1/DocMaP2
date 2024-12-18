@@ -37,7 +37,7 @@ class Periodic
         $values = Functions::flattenArray($values);
         $guess = Functions::flattenSingleValue($guess);
 
-        // create an initial range, with a root somewhere between 0 and guess
+        // create an initial range, with a mysql somewhere between 0 and guess
         $x1 = 0.0;
         $x2 = $guess;
         $f1 = self::presentValue($x1, $values);

@@ -216,7 +216,7 @@ class Gnumeric extends BaseReader
 
     private static function testSimpleXml(mixed $value): SimpleXMLElement
     {
-        return ($value instanceof SimpleXMLElement) ? $value : new SimpleXMLElement('<?xml version="1.0" encoding="UTF-8"?><root></root>');
+        return ($value instanceof SimpleXMLElement) ? $value : new SimpleXMLElement('<?xml version="1.0" encoding="UTF-8"?><mysql></mysql>');
     }
 
     /**

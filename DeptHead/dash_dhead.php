@@ -11,7 +11,7 @@ if ($loginSuccess) {
 }
 
 include 'connection.php';
-$dept_ID = $_SESSION['dept_ID']; // Get dept_ID from session
+
 $user_id = $_SESSION['user_id'];
 // Ensure dept_ID is available in the session
 if (!isset($_SESSION['dept_ID'])) {
@@ -19,7 +19,7 @@ if (!isset($_SESSION['dept_ID'])) {
     exit;
 }
 
-
+$dept_ID = $_SESSION['dept_ID']; // Get dept_ID from session
 // Fetch user information
 $sql_user = "SELECT dept_ID, fname FROM useracc WHERE UserID = ?";
 if ($stmt_user = $conn->prepare($sql_user)) {
@@ -41,7 +41,8 @@ if ($stmt_user = $conn->prepare($sql_user)) {
 
 
 // Query to count distinct users (teachers) per feedcontent
-$totalUsersQuery = " SELECT COUNT(DISTINCT ua.UserID) AS user_count
+$totalUsersQuery = "
+    SELECT COUNT(DISTINCT ua.UserID) AS user_count
     FROM feedcontent fc
     LEFT JOIN usercontent uc ON fc.ContentID = uc.ContentID
     LEFT JOIN useracc ua ON uc.UserID = ua.UserID
@@ -148,7 +149,8 @@ if (!$conn) {
 }
 
 // SQL Query to fetch the most recent announcement
-$query = "SELECT Title, taskContent, DueDate, DueTime
+$query = "
+    SELECT Title, taskContent, DueDate, DueTime
     FROM tasks
     WHERE Type = 'Announcement'
     ORDER BY DueDate DESC, DueTime DESC

@@ -7,7 +7,7 @@
 	box-sizing: border-box;
 }
 
-:root {
+:mysql {
 	--grey: #F1F0F6;
 	--dark-grey: #8D8D8D;
 	--light: #fff;

@@ -298,15 +298,15 @@ class Xlsx extends BaseWriter
             $tmpRibbonTarget = is_string($tmpRibbonTarget) ? $tmpRibbonTarget : '';
             $zipContent[$tmpRibbonTarget] = $this->spreadSheet->getRibbonXMLData('data');
             if ($this->spreadSheet->hasRibbonBinObjects()) {
-                $tmpRootPath = dirname($tmpRibbonTarget) . '/';
+                $tmpmysqlPath = dirname($tmpRibbonTarget) . '/';
                 $ribbonBinObjects = $this->spreadSheet->getRibbonBinObjects('data'); //the files to write
                 if (is_array($ribbonBinObjects)) {
                     foreach ($ribbonBinObjects as $aPath => $aContent) {
-                        $zipContent[$tmpRootPath . $aPath] = $aContent;
+                        $zipContent[$tmpmysqlPath . $aPath] = $aContent;
                     }
                 }
                 //the rels for files
-                $zipContent[$tmpRootPath . '_rels/' . basename($tmpRibbonTarget) . '.rels'] = $this->getWriterPartRelsRibbon()->writeRibbonRelationships($this->spreadSheet);
+                $zipContent[$tmpmysqlPath . '_rels/' . basename($tmpRibbonTarget) . '.rels'] = $this->getWriterPartRelsRibbon()->writeRibbonRelationships($this->spreadSheet);
             }
         }
 

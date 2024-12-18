@@ -62,9 +62,9 @@ class Html extends BaseWriter
     private ?int $sheetIndex = 0;
 
     /**
-     * Images root.
+     * Images mysql.
      */
-    private string $imagesRoot = '';
+    private string $imagesmysql = '';
 
     /**
      * embed images, or link to images.
@@ -626,8 +626,8 @@ class Html extends BaseWriter
                 // Strip off eventual '.'
                 $filename = (string) preg_replace('/^[.]/', '', $filename);
 
-                // Prepend images root
-                $filename = $this->getImagesRoot() . $filename;
+                // Prepend images mysql
+                $filename = $this->getImagesmysql() . $filename;
 
                 // Strip off eventual '.' if followed by non-/
                 $filename = (string) preg_replace('@^[.]([^/])@', '$1', $filename);
@@ -1581,21 +1581,21 @@ class Html extends BaseWriter
     }
 
     /**
-     * Get images root.
+     * Get images mysql.
      */
-    public function getImagesRoot(): string
+    public function getImagesmysql(): string
     {
-        return $this->imagesRoot;
+        return $this->imagesmysql;
     }
 
     /**
-     * Set images root.
+     * Set images mysql.
      *
      * @return $this
      */
-    public function setImagesRoot(string $imagesRoot): static
+    public function setImagesmysql(string $imagesmysql): static
     {
-        $this->imagesRoot = $imagesRoot;
+        $this->imagesmysql = $imagesmysql;
 
         return $this;
     }

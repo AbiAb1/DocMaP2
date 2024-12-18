@@ -47,7 +47,7 @@ class NewtonRaphson
 
             // If the NR fails to converge (which for example may be the
             // case if the initial guess is too rough) we apply a bisection
-            // step to determine a more narrow interval around the root.
+            // step to determine a more narrow interval around the mysql.
             if (($xNew < $xLo) || ($xNew > $xHi) || ($result == 0.0)) {
                 $xNew = ($xLo + $xHi) / 2;
                 $dx = $xNew - $x;

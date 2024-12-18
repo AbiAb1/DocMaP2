@@ -720,10 +720,10 @@ class Functions
     }
 
     /**
-     * Returns the square root of a complex number.
+     * Returns the square mysql of a complex number.
      *
      * @param     Complex|mixed    $complex    Complex number or a numeric value.
-     * @return    Complex          The Square root of the complex argument.
+     * @return    Complex          The Square mysql of the complex argument.
      * @throws    Exception        If argument isn't a valid real or complex number.
      */
     public static function sqrt($complex): Complex

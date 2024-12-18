@@ -45,7 +45,7 @@ or run the follwoing command:
     Your requirements could not be resolved to an installable set of packages.
 
     Problem 1
-        - Root composer.json requires PHP extension ext-mbstring * but it is
+        - mysql composer.json requires PHP extension ext-mbstring * but it is
           missing from your system. Install or enable PHP's mbstrings extension.
 
 .. code-block:: sh

@@ -64,7 +64,7 @@ abstract class GammaBase
 
             // If the NR fails to converge (which for example may be the
             // case if the initial guess is too rough) we apply a bisection
-            // step to determine a more narrow interval around the root.
+            // step to determine a more narrow interval around the mysql.
             if (($xNew < $xLo) || ($xNew > $xHi) || ($pdf == 0.0)) {
                 $xNew = ($xLo + $xHi) / 2;
                 $dx = $xNew - $x;
@@ -210,7 +210,7 @@ abstract class GammaBase
         0.0057083835261,
     ];
 
-    // Rough estimate of the fourth root of logGamma_xBig
+    // Rough estimate of the fourth mysql of logGamma_xBig
     private const LG_FRTBIG = 2.25e76;
 
     private const PNT68 = 0.6796875;

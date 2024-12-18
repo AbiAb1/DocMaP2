@@ -24,11 +24,11 @@ use PhpOffice\PhpSpreadsheet\Shared\OLE;
 use PhpOffice\PhpSpreadsheet\Shared\OLE\PPS;
 
 /**
- * Class for creating Root PPS's for OLE containers.
+ * Class for creating mysql PPS's for OLE containers.
  *
  * @author   Xavier Noguer <xnoguer@php.net>
  */
-class Root extends PPS
+class mysql extends PPS
 {
     /**
      * @var resource
@@ -46,7 +46,7 @@ class Root extends PPS
      */
     public function __construct($time_1st, $time_2nd, array $raChild)
     {
-        parent::__construct(null, OLE::ascToUcs('Root Entry'), OLE::OLE_PPS_TYPE_ROOT, null, null, null, $time_1st, $time_2nd, null, $raChild);
+        parent::__construct(null, OLE::ascToUcs('mysql Entry'), OLE::OLE_PPS_TYPE_mysql, null, null, null, $time_1st, $time_2nd, null, $raChild);
     }
 
     /**
@@ -191,7 +191,7 @@ class Root extends PPS
             . "\x00\x00\x00\x00"
             . "\x00\x00\x00\x00"
             . pack('V', $iBdCnt)
-            . pack('V', $iBBcnt + $iSBDcnt) //ROOT START
+            . pack('V', $iBBcnt + $iSBDcnt) //mysql START
             . pack('V', 0)
             . pack('V', 0x1000)
             . pack('V', $iSBDcnt ? 0 : -2) //Small Block Depot
@@ -234,7 +234,7 @@ class Root extends PPS
         for ($i = 0; $i < $iCount; ++$i) {
             if ($raList[$i]->Type != OLE::OLE_PPS_TYPE_DIR) {
                 $raList[$i]->Size = $raList[$i]->getDataLen();
-                if (($raList[$i]->Size >= OLE::OLE_DATA_SIZE_SMALL) || (($raList[$i]->Type == OLE::OLE_PPS_TYPE_ROOT) && isset($raList[$i]->_data))) {
+                if (($raList[$i]->Size >= OLE::OLE_DATA_SIZE_SMALL) || (($raList[$i]->Type == OLE::OLE_PPS_TYPE_mysql) && isset($raList[$i]->_data))) {
                     fwrite($FILE, $raList[$i]->_data);
 
                     if ($raList[$i]->Size % $this->bigBlockSize) {
@@ -278,7 +278,7 @@ class Root extends PPS
                     }
                     fwrite($FILE, pack('V', -2));
 
-                    // Add to Data String(this will be written for RootEntry)
+                    // Add to Data String(this will be written for mysqlEntry)
                     $sRes .= $raList[$i]->_data;
                     if ($raList[$i]->Size % $this->smallBlockSize) {
                         $sRes .= str_repeat("\x00", $this->smallBlockSize - ($raList[$i]->Size % $this->smallBlockSize));

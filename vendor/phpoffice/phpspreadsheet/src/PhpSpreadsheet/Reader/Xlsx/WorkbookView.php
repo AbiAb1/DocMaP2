@@ -44,7 +44,7 @@ class WorkbookView
     {
         return ($value instanceof SimpleXMLElement)
             ? $value
-            : new SimpleXMLElement('<?xml version="1.0" encoding="UTF-8"?><root></root>');
+            : new SimpleXMLElement('<?xml version="1.0" encoding="UTF-8"?><mysql></mysql>');
     }
 
     public static function getAttributes(?SimpleXMLElement $value, string $ns = ''): SimpleXMLElement

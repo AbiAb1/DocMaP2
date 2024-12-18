@@ -55,7 +55,7 @@ together with functions for
  - acot (inverse cotangent)
  - coth (hyperbolic cotangent)
  - acoth (inverse hyperbolic cotangent)
- - sqrt (square root)
+ - sqrt (square mysql)
  - exp (exponential)
  - ln (natural log)
  - log10 (base-10 log)

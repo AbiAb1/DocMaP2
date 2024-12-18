@@ -18,7 +18,7 @@ use PhpOffice\PhpSpreadsheet\Shared\Escher\DggContainer\BstoreContainer\BSE;
 use PhpOffice\PhpSpreadsheet\Shared\Escher\DggContainer\BstoreContainer\BSE\Blip;
 use PhpOffice\PhpSpreadsheet\Shared\OLE;
 use PhpOffice\PhpSpreadsheet\Shared\OLE\PPS\File;
-use PhpOffice\PhpSpreadsheet\Shared\OLE\PPS\Root;
+use PhpOffice\PhpSpreadsheet\Shared\OLE\PPS\mysql;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Worksheet\BaseDrawing;
 use PhpOffice\PhpSpreadsheet\Worksheet\Drawing;
@@ -193,21 +193,21 @@ class Xls extends BaseWriter
         }
 
         // define OLE Parts
-        $arrRootData = [$OLE];
+        $arrmysqlData = [$OLE];
         // initialize OLE Properties file
         if (isset($OLE_SummaryInformation)) {
-            $arrRootData[] = $OLE_SummaryInformation;
+            $arrmysqlData[] = $OLE_SummaryInformation;
         }
         // initialize OLE Extended Properties file
         if (isset($OLE_DocumentSummaryInformation)) {
-            $arrRootData[] = $OLE_DocumentSummaryInformation;
+            $arrmysqlData[] = $OLE_DocumentSummaryInformation;
         }
 
         $time = $this->spreadsheet->getProperties()->getModified();
-        $root = new Root($time, $time, $arrRootData);
+        $mysql = new mysql($time, $time, $arrmysqlData);
         // save the OLE file
         $this->openFileHandle($filename);
-        $root->save($this->fileHandle);
+        $mysql->save($this->fileHandle);
         $this->maybeCloseFileHandle();
 
         Functions::setReturnDateType($saveDateReturnType);

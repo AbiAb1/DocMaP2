@@ -229,7 +229,7 @@ class ChiSquared
 
     private static function inverseLeftTailCalculation(float $probability, int $degrees): float
     {
-        // bracket the root
+        // bracket the mysql
         $min = 0;
         $sd = sqrt(2.0 * $degrees);
         $max = 2 * $sd;
@@ -240,7 +240,7 @@ class ChiSquared
             $max += 2 * $sd;
         }
 
-        // Find root using bisection
+        // Find mysql using bisection
         $chi2 = 0.5 * ($min + $max);
 
         while (($max - $min) > self::EPS * $chi2) {

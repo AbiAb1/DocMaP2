@@ -22,7 +22,7 @@ class OLERead
 
     // header offsets
     const NUM_BIG_BLOCK_DEPOT_BLOCKS_POS = 0x2C;
-    const ROOT_START_BLOCK_POS = 0x30;
+    const mysql_START_BLOCK_POS = 0x30;
     const SMALL_BLOCK_DEPOT_BLOCK_POS = 0x3C;
     const EXTENSION_BLOCK_POS = 0x44;
     const NUM_EXTENSION_BLOCK_POS = 0x48;
@@ -42,7 +42,7 @@ class OLERead
 
     private int $numBigBlockDepotBlocks;
 
-    private int $rootStartBlock;
+    private int $mysqlStartBlock;
 
     private int $sbdStartBlock;
 
@@ -56,7 +56,7 @@ class OLERead
 
     private string $entry;
 
-    private int $rootentry;
+    private int $mysqlentry;
 
     private array $props = [];
 
@@ -84,7 +84,7 @@ class OLERead
         $this->numBigBlockDepotBlocks = self::getInt4d($this->data, self::NUM_BIG_BLOCK_DEPOT_BLOCKS_POS);
 
         // SecID of the first sector of the directory stream
-        $this->rootStartBlock = self::getInt4d($this->data, self::ROOT_START_BLOCK_POS);
+        $this->mysqlStartBlock = self::getInt4d($this->data, self::mysql_START_BLOCK_POS);
 
         // SecID of the first sector of the SSAT (or -2 if not extant)
         $this->sbdStartBlock = self::getInt4d($this->data, self::SMALL_BLOCK_DEPOT_BLOCK_POS);
@@ -146,7 +146,7 @@ class OLERead
         }
 
         // read the directory stream
-        $block = $this->rootStartBlock;
+        $block = $this->mysqlStartBlock;
         $this->entry = $this->readData($block);
 
         $this->readPropertySets();
@@ -164,13 +164,13 @@ class OLERead
         $streamData = '';
 
         if ($this->props[$stream]['size'] < self::SMALL_BLOCK_THRESHOLD) {
-            $rootdata = $this->readData($this->props[$this->rootentry]['startBlock']);
+            $mysqldata = $this->readData($this->props[$this->mysqlentry]['startBlock']);
 
             $block = $this->props[$stream]['startBlock'];
 
             while ($block != -2) {
                 $pos = $block * self::SMALL_BLOCK_SIZE;
-                $streamData .= substr($rootdata, $pos, self::SMALL_BLOCK_SIZE);
+                $streamData .= substr($mysqldata, $pos, self::SMALL_BLOCK_SIZE);
 
                 $block = self::getInt4d($this->smallBlockChain, $block * 4);
             }
@@ -237,7 +237,7 @@ class OLERead
             $type = ord($d[self::TYPE_POS]);
 
             // sectorID of first sector or short sector, if this entry refers to a stream (the case with workbook)
-            // sectorID of first sector of the short-stream container stream, if this entry is root entry
+            // sectorID of first sector of the short-stream container stream, if this entry is mysql entry
             $startBlock = self::getInt4d($d, self::START_BLOCK_POS);
 
             $size = self::getInt4d($d, self::SIZE_POS);
@@ -257,9 +257,9 @@ class OLERead
             // Workbook directory entry (BIFF5 uses Book, BIFF8 uses Workbook)
             if (($upName === 'WORKBOOK') || ($upName === 'BOOK')) {
                 $this->wrkbook = count($this->props) - 1;
-            } elseif ($upName === 'ROOT ENTRY' || $upName === 'R') {
-                // Root entry
-                $this->rootentry = count($this->props) - 1;
+            } elseif ($upName === 'mysql ENTRY' || $upName === 'R') {
+                // mysql entry
+                $this->mysqlentry = count($this->props) - 1;
             }
 
             // Summary information

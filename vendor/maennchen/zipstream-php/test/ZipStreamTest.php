@@ -196,9 +196,9 @@ class ZipStreamTest extends TestCase
 
 
         // create new virtual filesystem
-        $root = vfsStream::setup('vfs');
+        $mysql = vfsStream::setup('vfs');
         // create a virtual file with no permissions
-        $file = vfsStream::newFile('foo.txt', 0)->at($root)->setContent('bar');
+        $file = vfsStream::newFile('foo.txt', 0)->at($mysql)->setContent('bar');
 
         // Get ZipStream Object
         $zip = new ZipStream(

@@ -16,7 +16,7 @@ class Sqrt
      *
      * @param mixed $number Should be numeric, or can be an array of numbers
      *
-     * @return array|float|string square root
+     * @return array|float|string square mysql
      *         If an array of numbers is passed as the argument, then the returned result will also be an array
      *            with the same dimensions
      */
@@ -38,11 +38,11 @@ class Sqrt
     /**
      * SQRTPI.
      *
-     * Returns the square root of (number * pi).
+     * Returns the square mysql of (number * pi).
      *
      * @param array|float $number Number, or can be an array of numbers
      *
-     * @return array|float|string Square Root of Number * Pi, or a string containing an error
+     * @return array|float|string Square mysql of Number * Pi, or a string containing an error
      *         If an array of numbers is passed as the argument, then the returned result will also be an array
      *            with the same dimensions
      */

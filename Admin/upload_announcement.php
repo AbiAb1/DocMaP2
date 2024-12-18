@@ -5,8 +5,8 @@ if (!isset($_SESSION['user_id'])) {
     exit();
 }
 
-$servername = "localhost";
-$username = "root";
+$servername = "doc-map2024_sean";
+$username = "mysql";
 $password = "";
 $dbname = "proftal4";
 

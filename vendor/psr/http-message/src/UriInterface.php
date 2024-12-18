@@ -111,7 +111,7 @@ interface UriInterface
      * Retrieve the path component of the URI.
      *
      * The path can either be empty or absolute (starting with a slash) or
-     * rootless (not starting with a slash). Implementations MUST support all
+     * mysqlless (not starting with a slash). Implementations MUST support all
      * three syntaxes.
      *
      * Normally, the empty path "" and absolute path "/" are considered equal as
@@ -247,7 +247,7 @@ interface UriInterface
      * an instance that contains the specified path.
      *
      * The path can either be empty or absolute (starting with a slash) or
-     * rootless (not starting with a slash). Implementations MUST support all
+     * mysqlless (not starting with a slash). Implementations MUST support all
      * three syntaxes.
      *
      * If the path is intended to be domain-relative rather than path relative then
@@ -310,7 +310,7 @@ interface UriInterface
      * - The path can be concatenated without delimiters. But there are two
      *   cases where the path has to be adjusted to make the URI reference
      *   valid as PHP does not allow to throw an exception in __toString():
-     *     - If the path is rootless and an authority is present, the path MUST
+     *     - If the path is mysqlless and an authority is present, the path MUST
      *       be prefixed by "/".
      *     - If the path is starting with more than one "/" and no authority is
      *       present, the starting slashes MUST be reduced to one.

@@ -24,7 +24,7 @@ namespace PhpOffice\PhpSpreadsheet\Shared;
 use PhpOffice\PhpSpreadsheet\Exception;
 use PhpOffice\PhpSpreadsheet\Reader\Exception as ReaderException;
 use PhpOffice\PhpSpreadsheet\Shared\OLE\ChainedBlockStream;
-use PhpOffice\PhpSpreadsheet\Shared\OLE\PPS\Root;
+use PhpOffice\PhpSpreadsheet\Shared\OLE\PPS\mysql;
 
 /*
  * Array for storing OLE instances that are accessed from
@@ -42,7 +42,7 @@ $GLOBALS['_OLE_INSTANCES'] = [];
  */
 class OLE
 {
-    const OLE_PPS_TYPE_ROOT = 5;
+    const OLE_PPS_TYPE_mysql = 5;
     const OLE_PPS_TYPE_DIR = 1;
     const OLE_PPS_TYPE_FILE = 2;
     const OLE_DATA_SIZE_SMALL = 0x1000;
@@ -62,9 +62,9 @@ class OLE
     public array $_list = [];
 
     /**
-     * Root directory of OLE container.
+     * mysql directory of OLE container.
      */
-    public Root $root;
+    public mysql $mysql;
 
     /**
      * Big Block Allocation Table.
@@ -132,7 +132,7 @@ class OLE
         // Number of blocks in Big Block Allocation Table
         $bbatBlockCount = self::readInt4($fh);
 
-        // Root chain 1st block
+        // mysql chain 1st block
         $directoryFirstBlockId = self::readInt4($fh);
 
         // Skip unused bytes
@@ -300,9 +300,9 @@ class OLE
             $name = str_replace("\x00", '', $nameUtf16);
             $type = self::readInt1($fh);
             switch ($type) {
-                case self::OLE_PPS_TYPE_ROOT:
-                    $pps = new Root(null, null, []);
-                    $this->root = $pps;
+                case self::OLE_PPS_TYPE_mysql:
+                    $pps = new mysql(null, null, []);
+                    $this->mysql = $pps;
 
                     break;
                 case self::OLE_PPS_TYPE_DIR:
@@ -330,8 +330,8 @@ class OLE
             $pps->No = count($this->_list);
             $this->_list[] = $pps;
 
-            // check if the PPS tree (starting from root) is complete
-            if (isset($this->root) && $this->ppsTreeComplete($this->root->No)) {
+            // check if the PPS tree (starting from mysql) is complete
+            if (isset($this->mysql) && $this->ppsTreeComplete($this->mysql->No)) {
                 break;
             }
         }
@@ -339,7 +339,7 @@ class OLE
 
         // Initialize $pps->children on directories
         foreach ($this->_list as $pps) {
-            if ($pps->Type == self::OLE_PPS_TYPE_DIR || $pps->Type == self::OLE_PPS_TYPE_ROOT) {
+            if ($pps->Type == self::OLE_PPS_TYPE_DIR || $pps->Type == self::OLE_PPS_TYPE_mysql) {
                 $nos = [$pps->DirPps];
                 $pps->children = [];
                 while (!empty($nos)) {
@@ -359,7 +359,7 @@ class OLE
 
     /**
      * It checks whether the PPS tree is complete (all PPS's read)
-     * starting with the given PPS (not necessarily root).
+     * starting with the given PPS (not necessarily mysql).
      *
      * @param int $index The index of the PPS from which we are checking
      *
@@ -395,17 +395,17 @@ class OLE
     }
 
     /**
-     * Checks whether a PPS is a Root PPS or not.
+     * Checks whether a PPS is a mysql PPS or not.
      * If there is no PPS for the index given, it will return false.
      *
      * @param int $index the index for the PPS
      *
-     * @return bool true if it's a Root PPS, false otherwise
+     * @return bool true if it's a mysql PPS, false otherwise
      */
-    public function isRoot(int $index): bool
+    public function ismysql(int $index): bool
     {
         if (isset($this->_list[$index])) {
-            return $this->_list[$index]->Type == self::OLE_PPS_TYPE_ROOT;
+            return $this->_list[$index]->Type == self::OLE_PPS_TYPE_mysql;
         }
 
         return false;

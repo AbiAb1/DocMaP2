@@ -42,7 +42,7 @@ class PPS
     public string $Name;
 
     /**
-     * The PPS type. Dir, Root or File.
+     * The PPS type. Dir, mysql or File.
      */
     public int $Type;
 
@@ -57,7 +57,7 @@ class PPS
     public int $NextPps;
 
     /**
-     * The index of it's first child if this is a Dir or Root PPS.
+     * The index of it's first child if this is a Dir or mysql PPS.
      */
     public int $DirPps;
 
@@ -87,7 +87,7 @@ class PPS
     public string $_data = '';
 
     /**
-     * Array of child PPS's (only used by Root and Dir PPS's).
+     * Array of child PPS's (only used by mysql and Dir PPS's).
      */
     public array $children = [];
 
@@ -101,10 +101,10 @@ class PPS
      *
      * @param ?int $No The PPS index
      * @param ?string $name The PPS name
-     * @param ?int $type The PPS type. Dir, Root or File
+     * @param ?int $type The PPS type. Dir, mysql or File
      * @param ?int $prev The index of the previous PPS
      * @param ?int $next The index of the next PPS
-     * @param ?int $dir The index of it's first child if this is a Dir or Root PPS
+     * @param ?int $dir The index of it's first child if this is a Dir or mysql PPS
      * @param null|float|int $time_1st A timestamp
      * @param null|float|int $time_2nd A timestamp
      * @param ?string $data The (usually binary) source data of the PPS
@@ -157,7 +157,7 @@ class PPS
             . "\x00\x09\x02\x00"                  // 84
             . "\x00\x00\x00\x00"                  // 88
             . "\xc0\x00\x00\x00"                  // 92
-            . "\x00\x00\x00\x46"                  // 96 // Seems to be ok only for Root
+            . "\x00\x00\x00\x46"                  // 96 // Seems to be ok only for mysql
             . "\x00\x00\x00\x00"                  // 100
             . OLE::localDateToOLE($this->Time1st)          // 108
             . OLE::localDateToOLE($this->Time2nd)          // 116
@@ -183,7 +183,7 @@ class PPS
             return self::ALL_ONE_BITS;
         } elseif (count($to_save) == 1) {
             $cnt = count($raList);
-            // If the first entry, it's the root... Don't clone it!
+            // If the first entry, it's the mysql... Don't clone it!
             $raList[$cnt] = ($depth == 0) ? $to_save[0] : clone $to_save[0];
             $raList[$cnt]->No = $cnt;
             $raList[$cnt]->PrevPps = self::ALL_ONE_BITS;
@@ -194,7 +194,7 @@ class PPS
             $aPrev = array_slice($to_save, 0, $iPos);
             $aNext = array_slice($to_save, $iPos + 1);
             $cnt = count($raList);
-            // If the first entry, it's the root... Don't clone it!
+            // If the first entry, it's the mysql... Don't clone it!
             $raList[$cnt] = ($depth == 0) ? $to_save[$iPos] : clone $to_save[$iPos];
             $raList[$cnt]->No = $cnt;
             $raList[$cnt]->PrevPps = self::savePpsSetPnt($raList, $aPrev, $depth++);

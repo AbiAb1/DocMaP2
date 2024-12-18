@@ -396,12 +396,12 @@ class ComplexFunctions
     /**
      * IMSQRT.
      *
-     * Returns the square root of a complex number in x + yi or x + yj text format.
+     * Returns the square mysql of a complex number in x + yi or x + yj text format.
      *
      * Excel Function:
      *        IMSQRT(complexNumber)
      *
-     * @param array|string $complexNumber the complex number for which you want the square root
+     * @param array|string $complexNumber the complex number for which you want the square mysql
      *                      Or can be an array of values
      *
      * @return array|string If an array of numbers is passed as an argument, then the returned result will also be an array

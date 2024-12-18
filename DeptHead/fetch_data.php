@@ -1,7 +1,10 @@
 <?php
 // fetch_data.php
 
-include 'connection.php';
+$servername = "doc-map2024_sean";
+$username = "mysql";
+$password = "";
+$dbname = "proftal4";
 
 $conn = new mysqli($servername, $username, $password, $dbname);
 

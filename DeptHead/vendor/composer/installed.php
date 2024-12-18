@@ -1,6 +1,6 @@
 <?php return array(
-    'root' => array(
-        'name' => '__root__',
+    'mysql' => array(
+        'name' => '__mysql__',
         'pretty_version' => '1.0.0+no-version-set',
         'version' => '1.0.0.0',
         'reference' => null,
@@ -10,7 +10,7 @@
         'dev' => true,
     ),
     'versions' => array(
-        '__root__' => array(
+        '__mysql__' => array(
             'pretty_version' => '1.0.0+no-version-set',
             'version' => '1.0.0.0',
             'reference' => null,

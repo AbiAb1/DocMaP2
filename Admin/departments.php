@@ -5,28 +5,11 @@ session_start();
 require_once 'connection.php'; // Adjust the path as needed
 
 // Fetch teacher data
-$query = "
-    SELECT 
-    CONCAT(fname, ' ', mname, ' ', lname) AS fullname, 
-    UserID, 
-    profile 
-FROM 
-    useracc 
-WHERE 
-    Status = 'Approved'
-    AND dept_ID IS NULL
-    AND (
-        `Rank` = 'Head Teacher I' OR 
-        `Rank` = 'Head Teacher II' OR 
-        `Rank` = 'Head Teacher III' OR 
-        `Rank` = 'Head Teacher IV' OR 
-        `Rank` = 'Head Teacher V' OR 
-        `Rank` = 'Head Teacher VI' OR 
-        `Rank` = 'Master Teacher I' OR 
-        `Rank` = 'Master Teacher II' OR 
-        `Rank` = 'Master Teacher III'
-    );
-";
+$query = "SELECT CONCAT(fname, ' ', mname, ' ', lname) AS fullname, UserID, profile 
+          FROM useracc 
+          WHERE role = 'Teacher' 
+          AND Status = 'Approved' 
+          AND dept_ID IS NULL";
 
 $result = $conn->query($query);
 
