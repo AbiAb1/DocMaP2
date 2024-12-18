@@ -352,8 +352,8 @@ $conn->close();
             right: 15px; /* Distance from the right */
         }
         .chart-container {
-            width: 75px; /* Width of the chart container */
-            height: 75px; /* Height of the chart container */
+            width: 90px; /* Width of the chart container */
+            height: 90px; /* Height of the chart container */
             margin: 0 auto; /* Center the charts within their columns */
             border: none; /* No border */
             background-color: transparent; /* Transparent background */
