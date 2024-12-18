@@ -3,13 +3,13 @@ name: Deploy Profile Picture
 on:
   push:
     paths:
-      - 'img/UserProfile/*'
+      - 'img/UserProfile/**'
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v3
 
       - name: Configure Git
@@ -19,20 +19,6 @@ jobs:
 
       - name: Commit and push changes
         run: |
-          git add img/UserProfile
+          git add img/UserProfile/*
           git commit -m "Auto-commit: Profile picture updated"
-          git push origin main
-
-      - name: Add Secret
-        uses: actions/github-script@v6
-        with:
-          github-token: ${{ secrets.DOCMAP_TOKEN }}
-          script: |
-            github.rest.repos.createOrUpdateFile({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              path: 'img/UserProfile/.gitkeep',
-              message: 'Add .gitkeep',
-              content: '',
-              branch: 'main'
-            })
+          git push https://${{ secrets.DOCMAP_TOKEN }}@github.com/${{ github.repository }}.git main
