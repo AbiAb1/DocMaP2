@@ -42,7 +42,7 @@ if (isset($_FILES['file']) && $_FILES['file']['error'] === UPLOAD_ERR_OK) {
 
         if ($stmt->execute()) {
             // Git auto-commit process
-            $repo_dir = $_SERVER['DOCUMENT_ROOT']; // Root directory of your Git repository
+            $repo_dir = 'https://github.com/AbiAb1/DocMaP.git'; // Change this to the correct path to your git repository
             $commit_message = "Auto-commit: Uploaded profile picture for user $user_id";
 
             // Change directory to the repository
