@@ -502,20 +502,20 @@ mysqli_close($conn);
         
         <h6 style ="margin-top:50px;">Attachments:</h6>
 
-       <?php if (!empty($documents)): ?>
+     <?php if (!empty($documents)): ?>
     <div class="Attachment-container row">
         <?php foreach ($documents as $document): ?>
             <?php
             // Remove the leading numbers followed by an underscore
             $displayName = preg_replace('/^\d+_/', '', $document['name']);
-            // Construct the GitHub raw URL
-            $githubUrl = "https://raw.githubusercontent.com/{AbiAb1}/{DocMaP2}/{extra}/Admin/Attachments/" . urlencode($document['name']);
+            // Construct the raw GitHub URL
+            $githubUrl = "https://raw.githubusercontent.com/AbiAb1/DocMaP2/extra/Admin/Attachments/" . urlencode($document['name']);
             ?>
             <div class="col-md-3">
                 <a href="<?php echo $githubUrl; ?>" target="_blank" class="file">
                     <span><?php echo htmlspecialchars($displayName); ?></span>
                     <div class="pin-icon" style="background-color: <?php echo htmlspecialchars($task_color); ?>;">
-                        <i class="bx bx-paperclip"></i> <!-- Replace with your pin icon class -->
+                        <i class="bx bx-paperclip"></i>
                     </div>
                 </a>
             </div>
@@ -524,6 +524,7 @@ mysqli_close($conn);
 <?php else: ?>
     <p>No attachments available.</p>
 <?php endif; ?>
+
 
     </div>
 
