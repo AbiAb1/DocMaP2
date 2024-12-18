@@ -129,7 +129,11 @@ if (isset($_FILES['file']) && count($_FILES['file']['name']) > 0 && !empty($_FIL
         
             curl_close($ch);
         
-            
+            // Optionally Delete Local File After Upload
+            if (file_exists($target_file)) {
+                unlink($target_file);
+
+            }
         } else {
             $allFilesUploaded = false;
         }        
@@ -153,7 +157,7 @@ foreach ($ContentIDs as $ContentID) {
             foreach ($uploadedFiles as $file) {
                 $docuStmt = $conn->prepare("INSERT INTO attachment (UserID, ContentID, TaskID, name, mimeType, size, uri, TimeStamp) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
                 $timestamp = date("Y-m-d H:i:s"); // Current timestamp
-                $docuStmt->bind_param("ssssssss", $UserID, $ContentID, $TaskID, $file['fileName'], $file['fileMimeType'], $file['fileSize'], $file['target_file'], $timestamp);
+                $docuStmt->bind_param("ssssssss", $UserID, $ContentID, $TaskID, $file['fileName'], $file['fileMimeType'], $file['fileSize'], $file['githubUrl'], $timestamp);
 
                
                 $docuStmt->close(); // Close statement after each ContentID
@@ -323,4 +327,4 @@ header('Content-Type: application/json');
 echo json_encode($response);
 
 $conn->close();
-?>v
+?>
