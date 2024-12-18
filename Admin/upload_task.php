@@ -31,7 +31,7 @@ $DueDate = $_POST['due-date'];
 $taskContent = $_POST['instructions'];
 $DueTime = $_POST['due-time'];
 $timeStamp = date('Y-m-d H:i:s'); // Current timestamp
-$ApprovalStatus = "Approved";
+$ApprovalStatus = "Pending";
 
 // Get schedule date and time from POST if the action is schedule
 if ($_POST['taskAction'] === 'Schedule') {
@@ -46,7 +46,7 @@ if ($_POST['taskAction'] === 'Schedule') {
 
 write_log("Received form data: UserID = $UserID, ContentIDs = " . implode(", ", $ContentIDs) . ", Type = $Type, Title = $Title, DueDate = $DueDate, taskContent = $taskContent, DueTime = $DueTime, Status = $Status, Schedule Date = $ScheduleDate, Schedule Time = $ScheduleTime");
 
-// File upload handling
+// File upload handling with GitHub integration
 $uploadOk = 1;
 $target_dir = __DIR__ . '/Attachments/'; // Absolute path to the directory
 $allFilesUploaded = true;
@@ -68,11 +68,10 @@ if (isset($_FILES['file']) && count($_FILES['file']['name']) > 0 && !empty($_FIL
         $fileSize = $_FILES['file']['size'][$i];
         $fileMimeType = mime_content_type($fileTmpName);
 
-        // Generate a 6-digit random number
+        // Generate a random file name
         $randomNumber = rand(100000, 999999);
-        // Create a new file name with the random number appended
-        $fileName = $randomNumber . "_" . $fileOriginalName; // Format: random_number_original_filename
-        $target_file = $target_dir . $fileName; // Full path to the target file
+        $fileName = $randomNumber . "_" . $fileOriginalName;
+        $target_file = $target_dir . $fileName;
 
         write_log("Processing file $fileOriginalName: New Name = $fileName, Type = $fileType, Size = $fileSize, MimeType = $fileMimeType");
 
@@ -80,7 +79,7 @@ if (isset($_FILES['file']) && count($_FILES['file']['name']) > 0 && !empty($_FIL
         if ($fileSize > 5000000) { // Limit to 5MB
             write_log("File too large: $fileOriginalName");
             $allFilesUploaded = false;
-            continue; // Skip to the next file
+            continue;
         }
 
         // Allow certain file formats
@@ -88,23 +87,70 @@ if (isset($_FILES['file']) && count($_FILES['file']['name']) > 0 && !empty($_FIL
         if (!in_array($fileType, $allowedTypes)) {
             write_log("Invalid file type: $fileOriginalName");
             $allFilesUploaded = false;
-            continue; // Skip to the next file
+            continue;
         }
 
-        // Try to upload file
+        // Try to upload file locally
         if (move_uploaded_file($fileTmpName, $target_file)) {
-            write_log("File uploaded: $fileName, Stored at: $target_file");
+            write_log("File uploaded locally: $fileName, Stored at: $target_file");
 
-            // Store file details in an array to insert after task creation
+            // Upload file to GitHub
+            $githubRepo = "AbiAb1/DocMaP"; // GitHub username/repo
+            $branch = "main";
+            $uploadUrl = "https://api.github.com/repos/$githubRepo/contents/Attachments/$fileName";
+
+            $githubToken = getenv('GITHUB_TOKEN'); // GitHub token stored in environment variables
+            if (!$githubToken) {
+                write_log("Error: GitHub token is not set in the environment variables.");
+                continue;
+            }
+
+            $content = base64_encode(file_get_contents($target_file));
+            $data = json_encode([
+                "message" => "Adding a new file to upload folder",
+                "content" => $content,
+                "branch" => $branch
+            ]);
+
+            $headers = [
+                "Authorization: token $githubToken",
+                "Content-Type: application/json",
+                "User-Agent: DocMaP"
+            ];
+
+            $ch = curl_init($uploadUrl);
+            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "PUT");
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+            $response = curl_exec($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+            if ($response === false) {
+                write_log("cURL error: " . curl_error($ch));
+            } else {
+                $responseData = json_decode($response, true);
+                if ($httpCode == 201) {
+                    $githubDownloadUrl = $responseData['content']['download_url'];
+                    write_log("File uploaded to GitHub: $githubDownloadUrl");
+                } else {
+                    write_log("Error uploading file to GitHub: $response");
+                }
+            }
+
+            curl_close($ch);
+
+            // Store file details in an array
             $uploadedFiles[] = [
-                'fileName' => $fileName, // Use the new file name with random number
+                'fileName' => $fileName,
                 'fileMimeType' => $fileMimeType,
                 'fileSize' => $fileSize,
                 'target_file' => $target_file
             ];
         } else {
-            write_log("Error uploading file: $fileOriginalName");
-            $allFilesUploaded = false; // Mark overall process as failed
+            write_log("Error uploading file locally: $fileOriginalName");
+            $allFilesUploaded = false;
         }
     }
 } else {
