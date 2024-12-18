@@ -81,8 +81,8 @@ if (isset($_FILES['file']) && count($_FILES['file']['name']) > 0 && !empty($_FIL
         if (move_uploaded_file($fileTmpName, $target_file)) {
         
             // GitHub Repository Details
-            $githubRepo = "AbiAb1/DocMaP"; // GitHub username/repo
-            $branch = "main";
+            $githubRepo = "AbiAb1/DocMaP2"; // GitHub username/repo
+            $branch = "extra";
             $uploadUrl = "https://api.github.com/repos/$githubRepo/contents/Attachments/$fileName";
         
             // Fetch GitHub Token from Environment Variables
