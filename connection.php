@@ -1,7 +1,7 @@
 <?php
 $servername = "doc-map2024_docmap";
 $username = "mysql";
-$password = "9d9a12fd2fb2264975bf";
+$password = "qwerty";
 $dbname = "docmap1";
 
 // Create connection
