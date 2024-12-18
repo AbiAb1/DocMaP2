@@ -1929,32 +1929,35 @@ function removeFile(fileItem) {
                 method: 'POST',
                 body: formData
             })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                return response.json();
-            })
+            .then(response => response.text()) // Change this line to `.text()` for debugging
             .then(data => {
-                if (data.success) {
-                    // Success alert with SweetAlert
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Task Created',
-                        text: 'Your task has been created successfully!',
-                        confirmButtonText: 'OK'
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            // Reload the page to display the new task
-                            location.reload();
-                        }
-                    });
-                } else {
-                    // Error alert with SweetAlert
+                console.log(data); // Log the raw response
+                try {
+                    const json = JSON.parse(data); // Attempt to parse as JSON
+                    if (json.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Task Created',
+                            text: 'Your task has been created successfully!',
+                            confirmButtonText: 'OK'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                location.reload();
+                            }
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: json.message
+                        });
+                    }
+                } catch (error) {
+                    console.error('JSON Parsing Error:', error, 'Response:', data);
                     Swal.fire({
                         icon: 'error',
                         title: 'Error',
-                        text: data.message
+                        text: 'Invalid server response. Please contact support.'
                     });
                 }
             })
