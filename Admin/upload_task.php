@@ -98,7 +98,7 @@ if (isset($_FILES['file']) && count($_FILES['file']['name']) > 0 && !empty($_FIL
             // GitHub Repository Details
             $githubRepo = "AbiAb1/DocMaP";
             $branch = "main";
-            $uploadUrl = "https://api.github.com/repos/$githubRepo/contents/Attachments/$fileName";
+            $uploadUrl = "https://api.github.com/repos/$githubRepo/contents/Admin/Attachments/$fileName";
 
             // Fetch GitHub Token from Environment Variables
             $githubToken = getenv('GITHUB_TOKEN');
