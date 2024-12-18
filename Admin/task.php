@@ -8,27 +8,33 @@ $activeTab = isset($_GET['tab']) ? $_GET['tab'] : 'tasks';
 
 // Check if department_ids are being sent
 if (isset($_POST['department_ids'])) {
-    $department_ids = explode(',', $_POST['department_ids']); // Convert comma-separated string to array
+    $department_ids = explode(',', $_POST['department_ids']);
 
     if (!empty($department_ids)) {
-        // Fetch data for the selected departments
         $placeholders = implode(',', array_fill(0, count($department_ids), '?'));
         $sql = "SELECT DISTINCT ContentID, Title, LEFT(Captions, 50) AS Captions FROM feedcontent WHERE dept_ID IN ($placeholders)";
         $stmt = $conn->prepare($sql);
+        if ($stmt === false) {
+            die(json_encode(['error' => $conn->error])); // Handle preparation error
+        }
         $types = str_repeat('i', count($department_ids));
         $stmt->bind_param($types, ...$department_ids);
-        $stmt->execute();
+        if ($stmt->execute() === false) {
+            die(json_encode(['error' => $stmt->error])); // Handle execution error
+        }
         $result = $stmt->get_result();
+        if ($result === false) {
+            die(json_encode(['error' => $conn->error])); // Handle result retrieval error
+        }
 
-        $grades = array();
+        $grades = []; // Use [] for array initialization
         while ($row = $result->fetch_assoc()) {
             $grades[] = $row;
         }
 
-        // Return JSON response
-        echo json_encode($grades);
+        echo json_encode($grades, JSON_PRETTY_PRINT); // Use JSON_PRETTY_PRINT for readability
     } else {
-        echo json_encode([]);
+        echo json_encode([], JSON_PRETTY_PRINT);
     }
     exit;
 }
